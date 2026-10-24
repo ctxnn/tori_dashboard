@@ -1,0 +1,253 @@
+{
+  "recordedAt": "2026-10-21T08:42:26.936Z",
+  "size": {
+    "width": 1440,
+    "height": 810
+  },
+  "videos": [
+    {
+      "id": "owner",
+      "title": "The IP owner",
+      "role": "IP owner · Haruka Sato",
+      "color": "#e2402a",
+      "blurb": "Publish an authorised kit, review a creator’s proposal against it, and approve one exact version.",
+      "src": "/demo-videos/owner.mp4",
+      "poster": "/demo-videos/owner.jpg",
+      "duration": 69.6,
+      "chapters": [
+        {
+          "t": 6.1,
+          "title": "Start on the home page. Each person in the collaboration has their own login."
+        },
+        {
+          "t": 9.8,
+          "title": "Choose Haruka Sato — the IP owner and the kit’s named approver."
+        },
+        {
+          "t": 14.6,
+          "title": "Her overview: proposals waiting for a decision, her kit, and every collaboration."
+        },
+        {
+          "t": 23.4,
+          "title": "The authorised kit: explicit rules for products, territory, dates, price band and approver."
+        },
+        {
+          "t": 27.6,
+          "title": "Original artwork is uploaded here, then included in a published kit version."
+        },
+        {
+          "t": 31.4,
+          "title": "Changing the rules publishes a new kit version. Earlier proposals keep the rules they were judged by."
+        },
+        {
+          "t": 41.1,
+          "title": "The review screen shows the exact creative — before and after, generated from saved design data."
+        },
+        {
+          "t": 45.3,
+          "title": "Every change since the last approved version is listed. Approval never carries over."
+        },
+        {
+          "t": 49.5,
+          "title": "The creator’s contribution: audience, local angle and distribution plan."
+        },
+        {
+          "t": 53.4,
+          "title": "Every declared rule is re-checked on the server before a decision."
+        },
+        {
+          "t": 57.2,
+          "title": "Approve. Haruka’s decision is bound to this version’s fingerprint."
+        },
+        {
+          "t": 63,
+          "title": "Approved — sealed with the version number and fingerprint. Any later edit needs fresh approval."
+        }
+      ]
+    },
+    {
+      "id": "creator",
+      "title": "The creator",
+      "role": "Creator · Kabir & Riya",
+      "color": "#17493a",
+      "blurb": "Get refused for an unlicensed product, build a new proposal inside the kit, use the brief assistant, submit, and publish.",
+      "src": "/demo-videos/creator.mp4",
+      "poster": "/demo-videos/creator.jpg",
+      "duration": 129.4,
+      "chapters": [
+        {
+          "t": 7.3,
+          "title": "Creators log in the same way. First, Kabir Shah of Panel Theory."
+        },
+        {
+          "t": 15.3,
+          "title": "Kabir drafted a glassware product. The kit licenses only T-shirts and posters."
+        },
+        {
+          "t": 21.8,
+          "title": "The server refuses the submission — and explains why in plain language."
+        },
+        {
+          "t": 28.4,
+          "title": "Switch to Riya Menon, who runs 22 college anime clubs in Delhi NCR."
+        },
+        {
+          "t": 33.5,
+          "title": "Riya’s studio: her campaigns, their versions, and preorder progress."
+        },
+        {
+          "t": 43,
+          "title": "A private draft inside the kit’s latest rules. Rule checks run on the server as she edits."
+        },
+        {
+          "t": 48.2,
+          "title": "Optional brief assistant: two directions built only from this kit’s artwork and templates."
+        },
+        {
+          "t": 60.4,
+          "title": "Each suggestion is validated against the kit. Nothing is saved until Riya chooses."
+        },
+        {
+          "t": 68.5,
+          "title": "Now make it hers: approved artwork, colour and her own print line. The preview updates live."
+        },
+        {
+          "t": 88.7,
+          "title": "Her contribution beyond design: who it’s for and how fans will hear about it."
+        },
+        {
+          "t": 98.1,
+          "title": "Price, production threshold and dates — with a live split of who earns what."
+        },
+        {
+          "t": 107.8,
+          "title": "Submitted and locked, so the owner reviews exactly what was sent."
+        },
+        {
+          "t": 118.1,
+          "title": "Midnight Delivery Tee v3 has been approved by Haruka. Riya publishes it."
+        },
+        {
+          "t": 123.4,
+          "title": "Live. New orders get v3; everyone who bought v2 keeps v2."
+        }
+      ]
+    },
+    {
+      "id": "fan",
+      "title": "The fan",
+      "role": "Fan · Aarav Gupta",
+      "color": "#b3872c",
+      "blurb": "Find an official campaign, preorder in test mode, pay through the simulator, and track the order.",
+      "src": "/demo-videos/fan.mp4",
+      "poster": "/demo-videos/fan.jpg",
+      "duration": 68.8,
+      "chapters": [
+        {
+          "t": 7.3,
+          "title": "Log in as Aarav Gupta, a Sky Courier fan in Patiala."
+        },
+        {
+          "t": 11.9,
+          "title": "Official campaigns, each approved by the IP owner, with a production gate."
+        },
+        {
+          "t": 18.2,
+          "title": "The campaign page: approved design, creator, price and deadline."
+        },
+        {
+          "t": 21.8,
+          "title": "45 of 50 paid. Five more preorders unlock production."
+        },
+        {
+          "t": 33.1,
+          "title": "Choose size and quantity. The full total is shown before paying."
+        },
+        {
+          "t": 38.5,
+          "title": "Test-mode payment simulator: clearly labelled, no real money moves."
+        },
+        {
+          "t": 44.8,
+          "title": "Payment confirmed by a signed webhook on the server. The production gate is reached."
+        },
+        {
+          "t": 49,
+          "title": "Every payment event Torii received is listed here."
+        },
+        {
+          "t": 55.7,
+          "title": "Resending the same event is recognised as a duplicate. The order is counted once."
+        },
+        {
+          "t": 62.7,
+          "title": "Aarav’s orders. Each keeps the exact design version he paid for."
+        }
+      ]
+    },
+    {
+      "id": "operator",
+      "title": "The Torii operator",
+      "role": "Torii operator · Meera Iyer",
+      "color": "#2c5a86",
+      "blurb": "Release production, ship and deliver, prove idempotency, cancel and refund a missed run, and read the statement.",
+      "src": "/demo-videos/operator.mp4",
+      "poster": "/demo-videos/operator.jpg",
+      "duration": 89,
+      "chapters": [
+        {
+          "t": 7.2,
+          "title": "Log in as Meera Iyer from Torii operations."
+        },
+        {
+          "t": 12.2,
+          "title": "Every campaign, with anything that needs a decision flagged."
+        },
+        {
+          "t": 18,
+          "title": "Midnight has passed its gate: 50 of 50 paid. Release it to production."
+        },
+        {
+          "t": 23,
+          "title": "Ship, then deliver. Earnings are written to the ledger only on delivery."
+        },
+        {
+          "t": 34,
+          "title": "Replaying every payment event: all recognised as duplicates, ledger unchanged."
+        },
+        {
+          "t": 44.9,
+          "title": "Monsoon Route Poster missed its deadline at 13 of 40. Cancel and refund."
+        },
+        {
+          "t": 53.6,
+          "title": "Every paid order refunded exactly once. Running it again changes nothing."
+        },
+        {
+          "t": 67.8,
+          "title": "The statement. ₹69,900 net item sales on 100 delivered units."
+        },
+        {
+          "t": 70.2,
+          "title": "Licensor ₹6,990 · creator ₹5,592 · Torii ₹8,388 — revenue before expenses, not profit."
+        },
+        {
+          "t": 75,
+          "title": "Ledger totals are recomputed from orders and checked — including the refunds."
+        },
+        {
+          "t": 79.4,
+          "title": "Cost assumptions are kept apart from recorded figures. Every number links to its orders."
+        },
+        {
+          "t": 83.5,
+          "title": "Export the statement as CSV for partners."
+        }
+      ]
+    }
+  ],
+  "full": {
+    "src": "/demo-videos/torii-full-walkthrough.mp4",
+    "duration": 356.8
+  }
+}

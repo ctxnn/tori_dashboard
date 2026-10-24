@@ -1,0 +1,35 @@
+# dependencies
+node_modules
+
+# Next.js build output
+.next
+out
+next-env.d.ts
+*.tsbuildinfo
+
+# local demo database (recreated by the seed)
+/data
+
+# secrets — only .env.example is committed
+.env
+.env.*
+!.env.example
+
+# recording / test output
+.record-tmp
+coverage
+test-results
+playwright-report
+
+# logs
+*.log
+npm-debug.log*
+
+# OS / editor
+.DS_Store
+.vscode
+.idea
+
+# local tooling and personal notes
+.claude/
+todo.txt
