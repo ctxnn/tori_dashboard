@@ -1,4 +1,4 @@
-# Torii 鳥居
+# Torii 鳥居.   
 
 **The gate between a licensed kit and a paid preorder.** Torii brings official Japanese IP to Indian fans and turns that popularity into revenue, built for the Thapar Japan Hackathon’s JETRO challenge. One app, three surfaces:
 
