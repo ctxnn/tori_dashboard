@@ -7,6 +7,7 @@ import { all, get, run } from "../db";
 import { HttpError, badRequest, forbidden } from "../errors";
 import { CITY_NAMES, REGIONS, cityByName, type Region } from "../india";
 import { AGE_BANDS, LANGUAGES, PRICE_BANDS, WANTS, WATCH_CHANNELS, labelOf } from "../pulse";
+import { pulseJa } from "../pulse-ja";
 import { formatINR } from "../money";
 import { id, nowIso } from "../util";
 import { audit, type User } from "./core";
@@ -113,7 +114,7 @@ export interface AudienceInsights {
   medianPriceMinor: number | null;
   teeCampaigns: { title: string; priceMinor: number; reach: number }[];
   conversion: { signals: number; converted: number; rate: number };
-  findings: { title: string; detail: string }[];
+  findings: Finding[];
 }
 
 function shares(rows: { k: string; n: number }[], total: number, labels: { id: string; label: string }[]): Share[] {
@@ -211,13 +212,24 @@ export function audienceInsights(kitId: string): AudienceInsights {
   return insights;
 }
 
+export interface Finding {
+  title: string;
+  detail: string;
+  /** The same finding in Japanese, for the IP owner's view. */
+  ja: { title: string; detail: string };
+}
+
 /** Plain-language findings computed from the numbers. The AI summary builds on these. */
-export function findingsFor(a: AudienceInsights): { title: string; detail: string }[] {
+export function findingsFor(a: AudienceInsights): Finding[] {
   if (!a.total) return [];
-  const out: { title: string; detail: string }[] = [];
+  const out: Finding[] = [];
   const top = a.cities.slice(0, 3);
   const topShare = top.reduce((s, c) => s + c.interest, 0) / a.total;
-  out.push({ title: `${top.map((c) => c.city).join(", ")} lead`, detail: `${pct(topShare)} of interested fans are in these three cities.` });
+  out.push({
+    title: `${top.map((c) => c.city).join(", ")} lead`,
+    detail: `${pct(topShare)} of interested fans are in these three cities.`,
+    ja: { title: `${top.map((c) => c.city).join("・")}が上位`, detail: `購入意向のあるファンの${pct(topShare)}が、この3都市に集中しています。` },
+  });
 
   // Strong interest, nobody has sold there yet: a whole region first, else single cities.
   const region = REGIONS.map((r) => {
@@ -230,6 +242,10 @@ export function findingsFor(a: AudienceInsights): { title: string; detail: strin
     out.push({
       title: region ? `Untapped: the ${region.r} (${gaps.map((c) => c.city).join(", ")})` : `Untapped: ${gaps.map((c) => c.city).join(" & ")}`,
       detail: `${n} fans (${pct(n / a.total)}) said they’d buy, but no campaign has sold there yet.`,
+      ja: {
+        title: region ? `未開拓：${pulseJa(region.r)}（${gaps.map((c) => c.city).join("・")}）` : `未開拓：${gaps.map((c) => c.city).join("・")}`,
+        detail: `${n}人（${pct(n / a.total)}）のファンが購入意向を示していますが、まだこの地域で販売したキャンペーンはございません。`,
+      },
     });
   }
 
@@ -241,6 +257,13 @@ export function findingsFor(a: AudienceInsights): { title: string; detail: strin
       detail: tee && lower
         ? `At ${formatINR(tee.priceMinor)}, ${pct(tee.reach)} of fans are in reach; at ${formatINR(lower.priceMinor)}, ${pct(lower.share)} are.`
         : `Half of interested fans would pay at least ${formatINR(a.medianPriceMinor)}.`,
+      ja: {
+        title: `Tシャツの想定価格の中央値は${formatINR(a.medianPriceMinor)}`,
+        detail:
+          tee && lower
+            ? `${formatINR(tee.priceMinor)}ではファンの${pct(tee.reach)}、${formatINR(lower.priceMinor)}では${pct(lower.share)}が購入圏内です。`
+            : `購入意向のあるファンの半数が、${formatINR(a.medianPriceMinor)}以上を支払ってもよいと回答しています。`,
+      },
     });
   }
 
@@ -249,14 +272,29 @@ export function findingsFor(a: AudienceInsights): { title: string; detail: strin
     out.push({
       title: `Asked for, not in the kit: ${missing.map((w) => w.label.toLowerCase()).join(", ")}`,
       detail: `${missing.map((w) => `${pct(w.share)} want ${w.label.toLowerCase()}s`).join("; ")}. The current kit doesn’t allow ${missing.length > 1 ? "these" : "this"} yet.`,
+      ja: {
+        title: `ご要望があるもののキット対象外：${missing.map((w) => pulseJa(w.id, w.label)).join("・")}`,
+        detail: `${missing.map((w) => `${pct(w.share)}が${pulseJa(w.id, w.label)}を希望`).join("、")}しています。現在のキットではまだ許諾されておりません。`,
+      },
     });
   }
 
   const dub = a.languages.filter((l) => l.id !== "ja_en" && l.id !== "en").reduce((s, l) => s + l.share, 0);
-  if (dub > 0.2) out.push({ title: `${pct(dub)} watch in an Indian language`, detail: `${labelOf(LANGUAGES, a.languages.find((l) => l.id !== "ja_en" && l.id !== "en")!.id)} leads. Local-language print lines and captions travel further.` });
+  if (dub > 0.2) {
+    const lead = a.languages.find((l) => l.id !== "ja_en" && l.id !== "en")!.id;
+    out.push({
+      title: `${pct(dub)} watch in an Indian language`,
+      detail: `${labelOf(LANGUAGES, lead)} leads. Local-language print lines and captions travel further.`,
+      ja: { title: `${pct(dub)}がインドの言語で視聴`, detail: `最も多いのは${pulseJa(lead)}です。現地の言語を使った印刷テキストや字幕は、より広く届きます。` },
+    });
+  }
 
   const ch = a.channels.slice(0, 2);
-  out.push({ title: `Found on ${ch.map((c) => c.label).join(" and ")}`, detail: `${pct(ch.reduce((s, c) => s + c.share, 0))} of fans watch or discover the show there.` });
+  out.push({
+    title: `Found on ${ch.map((c) => c.label).join(" and ")}`,
+    detail: `${pct(ch.reduce((s, c) => s + c.share, 0))} of fans watch or discover the show there.`,
+    ja: { title: `主な接点は${ch.map((c) => pulseJa(c.id, c.label)).join("と")}`, detail: `ファンの${pct(ch.reduce((s, c) => s + c.share, 0))}が、ここで作品を視聴・発見しています。` },
+  });
   return out;
 }
 

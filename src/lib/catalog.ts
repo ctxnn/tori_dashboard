@@ -103,6 +103,14 @@ export function productName(id: string): string {
   return PRODUCTS[id]?.name ?? id;
 }
 
+const PRODUCT_JA: Record<string, string> = { tshirt: "Tシャツ", "t-shirt": "Tシャツ", poster: "ポスター", glassware: "グラス" };
+export const TERRITORIES_JA: Record<string, string> = { IN: "インド", JP: "日本", US: "米国" };
+
+/** Japanese product name, for the IP owner's view in Japanese. */
+export function productNameJa(id: string): string {
+  return PRODUCT_JA[id] ?? PRODUCT_JA[productName(id).toLowerCase()] ?? productName(id);
+}
+
 export function layoutName(productId: string, layoutId: string): string {
   return PRODUCTS[productId]?.layouts.find((l) => l.id === layoutId)?.name ?? layoutId;
 }

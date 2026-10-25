@@ -231,9 +231,20 @@ In the creator workspace, *Brief assistant* turns a brief (e.g. "Prepare two str
 
 With `ANTHROPIC_API_KEY` set, it calls Claude Opus 5.5 with schema-constrained output and server-side refusal fallback enabled. The schema's enums come from the kit, so Claude can't name an asset that doesn't exist. Without a key it uses deterministic templates. Either way the result is validated and rule-checked on the server, nothing is saved automatically, and a human still approves.
 
+## Japanese (日本語)
+
+Japanese rights holders can use Torii in Japanese. An **EN / 日本語** pill sits above the look switch for the IP owner in the workspace and everywhere in the Partner Portal (cookie `torii_lang`, set through `/api/lang`). It covers:
+
+- **Partner Portal:** sign-in, registration, overview, titles, the title and chapter editors, India insights, merch collaborations and earnings.
+- **IP owner workspace:** the menu, overview, asset kit, proposal reviews (including every rule check), audience insights and its summary, campaigns, statements and the role picker.
+
+The copy uses polite business Japanese (です・ます, with honorifics where Torii addresses publishers). Royalties also show a yen equivalent at a fixed demo rate of ₹1 = ¥1.8. Creators, Torii operations and the fan app stay in English, as do creators' own words (titles, stories) and the proof, pitch and how-it-works pages. Have a native speaker review the main screens before showing them to a Japanese audience.
+
+How it works: `t(english, japanese)` from `getT()` (`src/lib/i18n.ts`) in server components and `useT()` (`src/components/i18n-client.tsx`) in client components. Rule checks, audience findings and statement checks carry a `ja` copy alongside the English.
+
 ## Design
 
-The workspace and the Partner Portal come in two looks, switched with the **New look / Classic** pill in the bottom-right corner of every page (it sets the `torii_ui` cookie through `/api/ui`). The fan app has one look and ignores the switch.
+The whole site comes in two looks, switched with the **New look / Classic** pill in the bottom-right corner of the workspace and the Partner Portal (it sets the `torii_ui` cookie through `/api/ui`). The fan app follows the same switch.
 
 **New look** (the default), after heyclicky.com and folk.com:
 
@@ -241,6 +252,7 @@ The workspace and the Partner Portal come in two looks, switched with the **New 
 - Glossy "gel" pill buttons in blue, aqua, white and black; the torii red stays on the mark, stickers and hanko stamps.
 - macOS-style windows, chat bubbles that tell the collaboration story, lavender cards, and draggable die-cut stickers on the landing page.
 - A light Partner Portal console in place of the dark sidebar.
+- The fan app keeps its screens and layouts but takes the same palette, type and gel controls, with a soft tint per section and a frosted tab bar.
 - Everything lives in `src/components/v2/*` and `src/app/v2.css`. Every rule there is scoped to `html[data-ui="new"]`, and classic pages take on the look through small `ui-*` class hooks in `src/components/ui.tsx`.
 
 **Classic**, the original "print proof" studio language with Japanese craft motifs:

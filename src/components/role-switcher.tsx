@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { api } from "./client-api";
 import { Arrow, cx } from "./ui";
+import { useT } from "./i18n-client";
 
 export interface DemoUser {
   id: string;
@@ -31,6 +32,7 @@ const DOES: Record<string, string> = {
 
 export function RoleSwitcher({ users, currentId, next }: { users: DemoUser[]; currentId?: string; next?: string }) {
   const router = useRouter();
+  const t = useT();
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -68,7 +70,7 @@ export function RoleSwitcher({ users, currentId, next }: { users: DemoUser[]; cu
                 <span className="min-w-0">
                   <span className="block font-medium text-ink">
                     {u.name}
-                    {current && <span className="label ml-2 text-vermilion">· you</span>}
+                    {current && <span className="label ml-2 text-vermilion">{t("· you", "· 現在")}</span>}
                   </span>
                   <span className="label mt-0.5 block text-moss">{u.roleLabel}</span>
                 </span>
@@ -77,7 +79,7 @@ export function RoleSwitcher({ users, currentId, next }: { users: DemoUser[]; cu
                   <span className="block text-[13px] text-moss">{u.bio || DOES[u.role]}</span>
                 </span>
                 <span className="flex items-center gap-2 text-sm font-medium text-ink">
-                  <span className="hidden md:inline">{busy === u.id ? "Entering…" : current ? "Continue" : "Enter"}</span>
+                  <span className="hidden md:inline">{busy === u.id ? t("Entering…", "移動中…") : current ? t("Continue", "続ける") : t("Enter", "入る")}</span>
                   <span className="grid h-8 w-8 place-items-center rounded-full border border-sand-2 transition-colors group-hover:border-ink group-hover:bg-ink group-hover:text-paper">
                     <Arrow />
                   </span>

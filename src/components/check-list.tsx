@@ -1,6 +1,7 @@
 import type { CheckResult } from "@/lib/domain/rules";
 import { CHECK_STATUS } from "@/lib/labels";
 import { cx } from "./ui";
+import { makeT, type T } from "@/lib/i18n-shared";
 
 const ICON_TONE: Record<string, string> = {
   pass: "bg-ok text-white",
@@ -10,30 +11,30 @@ const ICON_TONE: Record<string, string> = {
   skipped: "bg-ivory text-moss ring-1 ring-inset ring-sand-2",
 };
 
-const GROUPS: { key: CheckResult["source"]; title: string }[] = [
-  { key: "kit", title: "Owner's kit rules" },
-  { key: "platform", title: "Torii template checks" },
-  { key: "approval", title: "Human approval" },
+const GROUPS: { key: CheckResult["source"]; title: string; ja: string }[] = [
+  { key: "kit", title: "Owner's kit rules", ja: "権利者さまのキットのルール" },
+  { key: "platform", title: "Torii template checks", ja: "Toriiのテンプレート確認" },
+  { key: "approval", title: "Human approval", ja: "ご担当者による承認" },
 ];
 
-export function CheckSummary({ checks }: { checks: CheckResult[] }) {
+export function CheckSummary({ checks, t = makeT("en") }: { checks: CheckResult[]; t?: T }) {
   const fails = checks.filter((c) => c.status === "fail").length;
   const warns = checks.filter((c) => c.status === "warn").length;
   const passes = checks.filter((c) => c.status === "pass").length;
   return (
     <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm">
       {fails > 0 ? (
-        <span className="font-semibold text-fail">{fails} rule{fails > 1 ? "s" : ""} failing</span>
+        <span className="font-semibold text-fail">{t(`${fails} rule${fails > 1 ? "s" : ""} failing`, `${fails}件のルールに不適合`)}</span>
       ) : (
-        <span className="font-semibold text-ok">All declared rules pass</span>
+        <span className="font-semibold text-ok">{t("All declared rules pass", "すべてのルールに適合")}</span>
       )}
-      <span className="text-moss">{passes} passed{warns ? ` · ${warns} advisory` : ""}</span>
+      <span className="text-moss">{t(`${passes} passed${warns ? ` · ${warns} advisory` : ""}`, `適合${passes}件${warns ? ` · 注意${warns}件` : ""}`)}</span>
     </div>
   );
 }
 
-export function CheckList({ checks, compact = false }: { checks: CheckResult[]; compact?: boolean }) {
-  if (!checks.length) return <p className="text-sm text-moss">No checks run yet.</p>;
+export function CheckList({ checks, compact = false, t = makeT("en") }: { checks: CheckResult[]; compact?: boolean; t?: T }) {
+  if (!checks.length) return <p className="text-sm text-moss">{t("No checks run yet.", "まだ確認は行われておりません。")}</p>;
   return (
     <div className="space-y-4">
       {GROUPS.map((g) => {
@@ -41,10 +42,13 @@ export function CheckList({ checks, compact = false }: { checks: CheckResult[]; 
         if (!items.length) return null;
         return (
           <div key={g.key}>
-            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-moss">{g.title}</div>
+            <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-moss">{t(g.title, g.ja)}</div>
             <ul className="space-y-1.5">
               {items.map((c) => {
                 const s = CHECK_STATUS[c.status];
+                const label = t.ja && c.ja ? c.ja.label : c.label;
+                const message = t.ja && c.ja ? c.ja.message : c.message;
+                const status = t(s.label, s.ja);
                 return (
                   <li
                     key={c.id}
@@ -58,11 +62,11 @@ export function CheckList({ checks, compact = false }: { checks: CheckResult[]; 
                     </span>
                     <div className="min-w-0 text-sm">
                       <div className="flex flex-wrap items-baseline gap-x-2">
-                        <span className="font-medium text-ink">{c.label}</span>
-                        <span className="sr-only">: {s.label}.</span>
-                        {c.status !== "pass" && <span className={cx("text-xs font-medium", c.status === "fail" ? "text-fail" : c.status === "warn" ? "text-warn" : "text-moss")}>{s.label}</span>}
+                        <span className="font-medium text-ink">{label}</span>
+                        <span className="sr-only">: {status}.</span>
+                        {c.status !== "pass" && <span className={cx("text-xs font-medium", c.status === "fail" ? "text-fail" : c.status === "warn" ? "text-warn" : "text-moss")}>{status}</span>}
                       </div>
-                      {(!compact || c.status !== "pass") && <p className="mt-0.5 leading-snug text-ink-2">{c.message}</p>}
+                      {(!compact || c.status !== "pass") && <p className="mt-0.5 leading-snug text-ink-2">{message}</p>}
                     </div>
                   </li>
                 );

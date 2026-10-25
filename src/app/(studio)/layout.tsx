@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { currentUser } from "@/lib/auth";
-import { ROLE_LABEL } from "@/lib/labels";
+import { ROLE_LABEL, ROLE_LABEL_JA } from "@/lib/labels";
+import { getT } from "@/lib/i18n";
+import { LangProvider, LangSwitch } from "@/components/i18n-client";
 import { ToriiMark } from "@/components/ui";
 import { NavLinks } from "@/components/nav-links";
 import { HeaderShell } from "@/components/header-shell";
@@ -16,9 +18,15 @@ const ROLE_DOT: Record<string, string> = { owner: "bg-vermilion", creator: "bg-p
 /** The collaboration workspace: IP owners, creators, Torii operations, and fans' collab pages. */
 export default async function StudioLayout({ children }: { children: React.ReactNode }) {
   const user = await currentUser();
-  const links = user ? NAV[user.role] : GUEST_NAV;
-  if ((await uiMode()) === "new") return <V2Chrome user={user} links={links}>{children}</V2Chrome>;
-  return (
+  const t = await getT("owner");
+  const links = (user ? NAV[user.role] : GUEST_NAV).map((l) => ({ href: l.href, label: t(l.label, l.ja ?? l.label) }));
+  const roleLabel = user ? t(ROLE_LABEL[user.role], ROLE_LABEL_JA[user.role]) : "";
+  const body =
+    (await uiMode()) === "new" ? (
+      <V2Chrome user={user} links={links} t={t}>
+        {children}
+      </V2Chrome>
+    ) : (
     <>
         <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-ink focus:px-4 focus:py-2 focus:text-paper">
           Skip to content
@@ -27,10 +35,10 @@ export default async function StudioLayout({ children }: { children: React.React
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-1.5 font-mono text-[10.5px] uppercase tracking-[0.08em] sm:px-6">
             <span className="truncate">
               <span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-vermilion align-middle" aria-hidden />
-              Demo build · fictional property, partners &amp; terms · test-mode payments
+              {t("Demo build · fictional property, partners & terms · test-mode payments", "デモ版 · 作品・企業・条件は架空です · 決済はテストモード")}
             </span>
             <Link href="/#reset" className="shrink-0 text-paper/90 underline decoration-paper/30 underline-offset-2 hover:decoration-paper">
-              Reset demo
+              {t("Reset demo", "デモをリセット")}
             </Link>
           </div>
         </div>
@@ -44,7 +52,7 @@ export default async function StudioLayout({ children }: { children: React.React
             <Link
               href="/switch"
               className="group ml-auto flex shrink-0 items-center gap-2.5 rounded-lg py-1 pl-1 pr-2 text-sm transition-colors hover:bg-ivory group-data-[tone=dark]/header:hover:bg-paper/10"
-              aria-label={user ? `Signed in as ${user.name}, ${ROLE_LABEL[user.role]}. Switch role` : "Choose a demo role"}
+              aria-label={user ? `Signed in as ${user.name}, ${roleLabel}. Switch role` : "Choose a demo role"}
             >
               <span className="relative grid h-8 w-8 place-items-center rounded-full bg-ink text-[11px] font-semibold text-paper group-data-[tone=dark]/header:bg-paper group-data-[tone=dark]/header:text-ink">
                 {user ? user.name.split(" ").map((p) => p[0]).join("") : "?"}
@@ -52,7 +60,7 @@ export default async function StudioLayout({ children }: { children: React.React
               </span>
               <span className="hidden leading-tight sm:block">
                 <span className="block text-[13px] font-medium text-ink group-data-[tone=dark]/header:text-paper">{user ? user.name : "Choose a role"}</span>
-                <span className="label block text-[9.5px] text-moss group-data-[tone=dark]/header:text-paper/50">{user ? ROLE_LABEL[user.role] : "Demo access"} · switch</span>
+                <span className="label block text-[9.5px] text-moss group-data-[tone=dark]/header:text-paper/50">{user ? roleLabel : "Demo access"} · {t("switch", "切替")}</span>
               </span>
             </Link>
           </div>
@@ -96,5 +104,17 @@ export default async function StudioLayout({ children }: { children: React.React
           <UiSwitch mode="classic" />
         </Suspense>
     </>
+  );
+  return (
+    <div lang={t.lang} className="contents">
+      <LangProvider lang={t.lang}>
+        {body}
+        {user?.role === "owner" && (
+          <Suspense>
+            <LangSwitch lang={t.lang} />
+          </Suspense>
+        )}
+      </LangProvider>
+    </div>
   );
 }

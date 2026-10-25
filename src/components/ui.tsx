@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ComponentProps, ReactNode } from "react";
+import { makeT, type T } from "@/lib/i18n-shared";
 
 export function cx(...parts: (string | false | null | undefined)[]): string {
   return parts.filter(Boolean).join(" ");
@@ -101,11 +102,11 @@ export function CardHeader({ title, subtitle, action, eyebrow }: { title: ReactN
 // ---------------------------------------------------------------------------
 
 export const STAGES = [
-  { n: 1, short: "Kit", title: "Authorised kit" },
-  { n: 2, short: "Offer", title: "Creator offer" },
-  { n: 3, short: "Approval", title: "Checks & approval" },
-  { n: 4, short: "Preorders", title: "Paid validation" },
-  { n: 5, short: "Results", title: "Commercial results" },
+  { n: 1, short: "Kit", title: "Authorised kit", shortJa: "キット", titleJa: "許諾キット" },
+  { n: 2, short: "Offer", title: "Creator offer", shortJa: "企画", titleJa: "クリエイターの企画" },
+  { n: 3, short: "Approval", title: "Checks & approval", shortJa: "承認", titleJa: "確認と承認" },
+  { n: 4, short: "Preorders", title: "Paid validation", shortJa: "予約", titleJa: "事前決済による検証" },
+  { n: 5, short: "Results", title: "Commercial results", shortJa: "成果", titleJa: "販売成果" },
 ] as const;
 
 /** Line icon for each stage: kit box, creator's pen, approval seal, preorder bag, results chart. */
@@ -150,9 +151,9 @@ export function StageIcon({ n, className, strokeWidth = 1.7 }: { n: number; clas
   );
 }
 
-export function StageRail({ current, className, dark = false }: { current: number; className?: string; dark?: boolean }) {
+export function StageRail({ current, className, dark = false, t = makeT("en") }: { current: number; className?: string; dark?: boolean; t?: T }) {
   return (
-    <ol className={cx("flex items-center gap-0", className)} aria-label={`Stage ${current} of 5: ${STAGES[current - 1]?.title}`}>
+    <ol className={cx("flex items-center gap-0", className)} aria-label={t(`Stage ${current} of 5: ${STAGES[current - 1]?.title}`, `全5段階中 第${current}段階：${STAGES[current - 1]?.titleJa}`)}>
       {STAGES.map((s, i) => {
         const active = s.n === current;
         const done = s.n < current;
@@ -166,7 +167,7 @@ export function StageRail({ current, className, dark = false }: { current: numbe
               )}
             >
               <StageIcon n={s.n} className="h-4 w-4" />
-              <span className={cx("hidden pr-1 sm:inline", active ? "" : "max-lg:hidden")}>{s.short}</span>
+              <span className={cx("hidden pr-1 sm:inline", active ? "" : "max-lg:hidden")}>{t(s.short, s.shortJa)}</span>
             </span>
           </li>
         );
@@ -186,6 +187,7 @@ export function PageHeader({
   actions,
   stage,
   meta,
+  t,
 }: {
   eyebrow?: ReactNode;
   title: ReactNode;
@@ -193,6 +195,8 @@ export function PageHeader({
   actions?: ReactNode;
   stage?: number;
   meta?: [string, ReactNode][];
+  /** Language for the stage rail; the caller passes already-translated text for everything else. */
+  t?: T;
 }) {
   return (
     <header className="ui-pagehead mb-10">
@@ -203,7 +207,7 @@ export function PageHeader({
           </span>
           {eyebrow}
         </div>
-        {stage && <StageRail current={stage} />}
+        {stage && <StageRail current={stage} t={t} />}
       </div>
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div className="min-w-0 max-w-3xl">
@@ -334,12 +338,12 @@ export function Seal({ label = "Approved", sub, className, tone = "vermilion" }:
   );
 }
 
-export function Field({ label, hint, error, children, htmlFor, optional }: { label: string; hint?: ReactNode; error?: string; children: ReactNode; htmlFor?: string; optional?: boolean }) {
+export function Field({ label, hint, error, children, htmlFor, optional }: { label: string; hint?: ReactNode; error?: string; children: ReactNode; htmlFor?: string; optional?: boolean | string }) {
   return (
     <div className="space-y-1.5">
       <label htmlFor={htmlFor} className="flex items-baseline justify-between gap-2 text-[13px] font-medium text-ink">
         <span>{label}</span>
-        {optional && <span className="label text-moss/80">Optional</span>}
+        {optional && <span className="label text-moss/80">{typeof optional === "string" ? optional : "Optional"}</span>}
       </label>
       {children}
       {error ? <p className="text-xs text-fail">{error}</p> : hint ? <p className="text-xs leading-snug text-moss">{hint}</p> : null}

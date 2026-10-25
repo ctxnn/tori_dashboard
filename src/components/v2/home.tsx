@@ -256,7 +256,7 @@ export async function V2Home(p: V2HomeProps) {
           </div>
           {/* the phone, drawn with the fan app's own components and look */}
           <div className="relative mx-auto w-full max-w-[340px]">
-            <div className="store-root rounded-[46px] border-[10px] border-[#0c0c0f] shadow-[0_30px_60px_-20px_rgba(20,40,100,0.45)]" aria-label="The Torii fan app">
+            <div className="store-root fan-skin rounded-[46px] border-[10px] border-[#0c0c0f] shadow-[0_30px_60px_-20px_rgba(20,40,100,0.45)]" aria-label="The Torii fan app">
               <div className="overflow-hidden rounded-[36px] bg-[rgb(var(--paper))]" data-section="read">
                 <div className="flex items-center gap-2 px-5 pb-2 pt-4">
                   <span className="font-display text-[17px] leading-none">Torii</span>

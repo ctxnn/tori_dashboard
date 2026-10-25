@@ -3,9 +3,11 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { Button, Field, Input, Notice, Textarea } from "@/components/ui";
+import { useT } from "@/components/i18n-client";
 
 export function UploadAsset({ kitId }: { kitId: string }) {
   const router = useRouter();
+  const t = useT();
   const fileRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -25,8 +27,8 @@ export function UploadAsset({ kitId }: { kitId: string }) {
     try {
       const res = await fetch(`/api/kits/${kitId}/assets`, { method: "POST", body: form });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error ?? "Upload failed");
-      setMessage({ tone: "ok", text: `Uploaded as ${data.asset.code}. Include it in the next kit version to make it available.` });
+      if (!res.ok) throw new Error(data.error ?? t("Upload failed", "アップロードできませんでした"));
+      setMessage({ tone: "ok", text: t(`Uploaded as ${data.asset.code}. Include it in the next kit version to make it available.`, `${data.asset.code}としてアップロードしました。次のキットのバージョンに含めると、クリエイターが利用できるようになります。`) });
       setName("");
       setDescription("");
       setFile(null);
@@ -41,8 +43,8 @@ export function UploadAsset({ kitId }: { kitId: string }) {
 
   return (
     <form onSubmit={submit} className="space-y-3 rounded-xl border border-dashed border-sand-2 bg-ivory/50 p-4">
-      <div className="text-sm font-semibold">Upload artwork</div>
-      <Field label="File" htmlFor="asset-file" hint="PNG, JPEG, WebP or SVG up to 5 MB. Scripts are rejected.">
+      <div className="text-sm font-semibold">{t("Upload artwork", "素材をアップロード")}</div>
+      <Field label={t("File", "ファイル")} htmlFor="asset-file" hint={t("PNG, JPEG, WebP or SVG up to 5 MB. Scripts are rejected.", "PNG・JPEG・WebP・SVG（5MBまで）に対応しております。スクリプトを含むファイルはお受けできません。")}>
         <input
           ref={fileRef}
           id="asset-file"
@@ -56,15 +58,15 @@ export function UploadAsset({ kitId }: { kitId: string }) {
           className="block w-full text-sm file:mr-3 file:rounded-full file:border-0 file:bg-pine file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-paper"
         />
       </Field>
-      <Field label="Name" htmlFor="asset-name">
+      <Field label={t("Name", "名称")} htmlFor="asset-name">
         <Input id="asset-name" value={name} onChange={(e) => setName(e.target.value)} required />
       </Field>
-      <Field label="Usage note" htmlFor="asset-desc" optional>
+      <Field label={t("Usage note", "使用上の注意")} htmlFor="asset-desc" optional={t("Optional", "任意")}>
         <Textarea id="asset-desc" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
       </Field>
       {message && <Notice tone={message.tone}>{message.text}</Notice>}
       <Button type="submit" disabled={busy || !file || !name.trim()} className="w-full">
-        {busy ? "Uploading…" : "Upload to library"}
+        {busy ? t("Uploading…", "アップロード中…") : t("Upload to library", "ライブラリにアップロード")}
       </Button>
     </form>
   );

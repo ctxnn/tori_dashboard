@@ -3,10 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ITEMS } from "@/store/components/partner/PartnerNav";
+import { useT } from "@/components/i18n-client";
 
 /** The Partner Portal's sections on a light sidebar; the current one is a raised white chip. */
 export function V2PartnerNav({ badge }: { badge?: Record<string, number> }) {
   const path = usePathname() || "";
+  const t = useT();
   return (
     <nav aria-label="Partner Portal" className="no-scrollbar flex gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
       {ITEMS.map((it) => {
@@ -25,8 +27,8 @@ export function V2PartnerNav({ badge }: { badge?: Record<string, number> }) {
               <path d={it.icon} />
             </svg>
             <span className="flex flex-col leading-tight">
-              <span className="lowercase">{it.en}</span>
-              <span className="jp hidden text-[11px] text-black/40 lg:block">{it.ja}</span>
+              <span className={t.ja ? "jp" : "lowercase"}>{t(it.en, it.ja)}</span>
+              <span className={`hidden text-[11px] text-black/40 lg:block ${t.ja ? "lowercase" : "jp"}`}>{t(it.ja, it.en)}</span>
             </span>
             {!!n && <span className="ml-auto rounded-full bg-[#e8402f] px-1.5 text-[11px] font-semibold text-white">{n}</span>}
           </Link>

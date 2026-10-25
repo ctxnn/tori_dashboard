@@ -1,13 +1,20 @@
 // The workspace's main navigation per role, shared by the classic and new headers.
-export const NAV: Record<string, { href: string; label: string }[]> = {
+export interface NavItem {
+  href: string;
+  label: string;
+  /** Japanese label, for the IP owner's menu */
+  ja?: string;
+}
+
+export const NAV: Record<string, NavItem[]> = {
   owner: [
-    { href: "/owner", label: "Overview" },
-    { href: "/owner/kit", label: "Asset kit" },
-    { href: "/partner/dashboard", label: "Manga titles" },
-    { href: "/audience", label: "Audience" },
-    { href: "/campaigns", label: "Campaigns" },
-    { href: "/proof", label: "Proof" },
-    { href: "/how-it-works", label: "How it works" },
+    { href: "/owner", label: "Overview", ja: "概要" },
+    { href: "/owner/kit", label: "Asset kit", ja: "アセットキット" },
+    { href: "/partner/dashboard", label: "Manga titles", ja: "作品管理" },
+    { href: "/audience", label: "Audience", ja: "オーディエンス" },
+    { href: "/campaigns", label: "Campaigns", ja: "キャンペーン" },
+    { href: "/proof", label: "Proof", ja: "実績データ" },
+    { href: "/how-it-works", label: "How it works", ja: "使い方" },
   ],
   creator: [
     { href: "/creator", label: "Studio" },
@@ -38,7 +45,7 @@ export const NAV: Record<string, { href: string; label: string }[]> = {
   ],
 };
 
-export const GUEST_NAV = [
+export const GUEST_NAV: NavItem[] = [
   { href: "/read", label: "Fan app" },
   { href: "/campaigns", label: "Campaigns" },
   { href: "/pulse", label: "Fan pulse" },

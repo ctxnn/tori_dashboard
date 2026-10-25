@@ -9,21 +9,22 @@ import { getVersion, listVersions, requireCampaign, type Campaign } from "./camp
 import { getKit, type Kit } from "./kits";
 import { listOrders, type Order, type OrderStatus } from "./orders";
 
-export const BUCKETS: { key: OrderStatus; label: string; holdsCash: boolean }[] = [
-  { key: "pending_payment", label: "Awaiting payment", holdsCash: false },
-  { key: "payment_failed", label: "Payment declined", holdsCash: false },
-  { key: "paid", label: "Paid", holdsCash: true },
-  { key: "in_production", label: "In production", holdsCash: true },
-  { key: "shipped", label: "Fulfilled (shipped)", holdsCash: true },
-  { key: "delivered", label: "Delivered", holdsCash: true },
-  { key: "refund_pending", label: "Refund in progress", holdsCash: true },
-  { key: "refunded", label: "Refunded", holdsCash: false },
-  { key: "cancelled", label: "Cancelled before payment", holdsCash: false },
+export const BUCKETS: { key: OrderStatus; label: string; ja: string; holdsCash: boolean }[] = [
+  { key: "pending_payment", label: "Awaiting payment", ja: "支払い待ち", holdsCash: false },
+  { key: "payment_failed", label: "Payment declined", ja: "決済失敗", holdsCash: false },
+  { key: "paid", label: "Paid", ja: "支払い済み", holdsCash: true },
+  { key: "in_production", label: "In production", ja: "生産中", holdsCash: true },
+  { key: "shipped", label: "Fulfilled (shipped)", ja: "発送済み", holdsCash: true },
+  { key: "delivered", label: "Delivered", ja: "お届け済み", holdsCash: true },
+  { key: "refund_pending", label: "Refund in progress", ja: "返金手続き中", holdsCash: true },
+  { key: "refunded", label: "Refunded", ja: "返金済み", holdsCash: false },
+  { key: "cancelled", label: "Cancelled before payment", ja: "お支払い前にキャンセル", holdsCash: false },
 ];
 
 export interface Bucket {
   key: OrderStatus;
   label: string;
+  ja: string;
   orders: number;
   units: number;
   totalMinor: number;
@@ -53,7 +54,7 @@ export interface Statement {
   recalculated: AllocationTotals;
   pipeline: AllocationTotals;
   byVersion: { versionNo: number; priceMinor: number; terms: Terms; delivered: number; itemSales: number; orders: number }[];
-  checks: { label: string; ok: boolean; detail: string }[];
+  checks: { label: string; ok: boolean; detail: string; ja: { label: string; detail: string } }[];
   assumptions: {
     costs: CostAssumptions;
     productId: string;
@@ -92,7 +93,7 @@ export function buildStatement(campaignId: string): Statement {
 
   const buckets: Bucket[] = BUCKETS.map((b) => {
     const os = orders.filter((o) => o.status === b.key);
-    return { key: b.key, label: b.label, orders: os.length, units: os.reduce((s, o) => s + o.quantity, 0), totalMinor: os.reduce((s, o) => s + o.total_minor, 0) };
+    return { key: b.key, label: b.label, ja: b.ja, orders: os.length, units: os.reduce((s, o) => s + o.quantity, 0), totalMinor: os.reduce((s, o) => s + o.total_minor, 0) };
   });
 
   // Recorded, from the ledger.
@@ -152,21 +153,25 @@ export function buildStatement(campaignId: string): Statement {
       label: "Net cash matches orders still holding payment",
       ok: cash.netMinor === heldMinor,
       detail: `Ledger net ${cash.netMinor} vs ${heldOrders} orders holding ${heldMinor} (paise).`,
+      ja: { label: "入金の純額が、決済を保持している注文と一致", detail: `台帳の純額 ${cash.netMinor} と、決済保持中の注文${heldOrders}件の合計 ${heldMinor}（パイサ）を比較。` },
     },
     {
       label: "Every captured payment is either held or refunded",
       ok: cash.capturedCount === heldOrders + refundedOrders && cash.refundedCount === refundedOrders,
       detail: `${cash.capturedCount} captures = ${heldOrders} held + ${refundedOrders} refunded; ${cash.refundedCount} refund entries.`,
+      ja: { label: "すべての決済が、保持または返金のいずれかに該当", detail: `決済${cash.capturedCount}件 ＝ 保持${heldOrders}件 ＋ 返金${refundedOrders}件（返金記録${cash.refundedCount}件）。` },
     },
     {
       label: "Recorded earnings match a fresh recalculation from delivered orders",
       ok: same(recognised, recalculated),
       detail: `${recognised.units} delivered units recorded, ${recalculated.units} recalculated.`,
+      ja: { label: "計上済みの収益が、お届け済み注文からの再計算と一致", detail: `お届け済み${recognised.units}点を計上、再計算でも${recalculated.units}点。` },
     },
     {
       label: "Shares add up to net item sales",
       ok: recognised.licensorRoyalty + recognised.creatorEarnings + recognised.toriiCommission + recognised.sellerShare === recognised.itemSales,
       detail: "Royalty + creator + Torii + seller share = net item sales.",
+      ja: { label: "各取り分の合計が商品の純売上と一致", detail: "ロイヤリティ ＋ クリエイター ＋ Torii ＋ 販売者の取り分 ＝ 商品の純売上。" },
     },
   ];
 

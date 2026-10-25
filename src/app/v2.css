@@ -265,6 +265,71 @@
     linear-gradient(180deg, #1b3b96 0%, #2a56c6 62%, #3c70dc 100%);
 }
 /* Ink panels and chips get a glossy black finish. */
-[data-ui="new"] main .bg-ink:not([data-dark-band], :where(.store-root, .store-root *)) { background-image: linear-gradient(180deg, #2b2b32 0%, #0c0c0f 62%); }
+[data-ui="new"] main .bg-ink:not([data-dark-band], .ui-btn, :where(.store-root, .store-root *)) { background-image: linear-gradient(180deg, #2b2b32 0%, #0c0c0f 62%); }
 /* Warm paper backdrops behind product previews cool down to the new grey. */
 [data-ui="new"] .bg-\[\#ECEBE5\] { background-color: #eceef2; }
+
+/* Japanese (the IP owner's workspace and the Partner Portal in 日本語): the tight Latin
+   tracking cramps kana and kanji, so headings and body sit at near-normal spacing. */
+[lang="ja"] :is(h1, h2, h3, .font-display, .font-serif) { letter-spacing: -0.01em !important; }
+[lang="ja"] { letter-spacing: 0.01em; line-break: strict; }
+
+/* ===========================================================================
+   The fan app in the new look. Same screens and frames; the palette, type and
+   controls follow the rest of the site. Each section keeps its own soft tint,
+   taken from heyclicky's window bars, with one gel-blue accent throughout.
+   .fan-skin applies the same palette to fan-app previews outside the app.
+   =========================================================================== */
+[data-ui="new"] :is(.store-app, .fan-skin),
+[data-ui="new"] :is(.store-app, .fan-skin) [data-section] {
+  --bg: 245 245 245; --card: 255 255 255; --fg: 12 12 15; --ink: 12 12 15; --muted: 116 118 125; --line: 229 230 234;
+  --ok: 29 117 82; --warn: 162 101 11; --bad: 205 45 45;
+  --accent: 45 91 210; --accentsoft: 231 238 253; --paper: 236 241 254;
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-inter), system-ui, sans-serif;
+  color-scheme: light;
+}
+[data-ui="new"] :is(.store-app, .fan-skin) [data-section="read"]    { --paper: 251 234 240; }
+[data-ui="new"] :is(.store-app, .fan-skin) [data-section="manga"]   { --paper: 230 238 253; }
+[data-ui="new"] :is(.store-app, .fan-skin) [data-section="figures"] { --paper: 251 243 222; }
+[data-ui="new"] :is(.store-app, .fan-skin) [data-section="collabs"] { --paper: 236 241 254; }
+[data-ui="new"] :is(.store-app, .fan-skin) [data-section="shelf"]   { --paper: 226 242 230; }
+[data-ui="new"] :is(.store-app, .fan-skin) [data-section="account"] { --paper: 238 239 243; }
+
+[data-ui="new"] :is(.store-app, .fan-skin) { font-feature-settings: "cv11", "ss01"; letter-spacing: -0.01em; }
+[data-ui="new"] :is(.store-app, .fan-skin) :is(.font-display, .h-title) { font-weight: 700; letter-spacing: -0.045em; }
+[data-ui="new"] :is(.store-app, .fan-skin) .h-section { font-weight: 600; letter-spacing: -0.035em; }
+
+/* gel controls, as in the workspace */
+[data-ui="new"] :is(.store-app, .fan-skin) :is(.btn-primary, .btn-ink, .btn-ghost) { position: relative; isolation: isolate; font-weight: 500; letter-spacing: -0.02em; }
+[data-ui="new"] :is(.store-app, .fan-skin) :is(.btn-primary, .btn-ink, .btn-ghost)::before {
+  content: ""; position: absolute; z-index: -1; inset: 1px 7px 52% 7px; border-radius: 999px;
+  background: linear-gradient(rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.04)); pointer-events: none;
+}
+[data-ui="new"] :is(.store-app, .fan-skin) .btn-primary { color: #fff; background: var(--gel-blue); border: 1px solid #1a3a92; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 7px 14px -4px rgb(24 61 154 / 0.45); text-shadow: 0 1px 0 rgb(0 0 0 / 0.18); }
+[data-ui="new"] :is(.store-app, .fan-skin) .btn-ink { color: #fff; background: var(--gel-black); border: 1px solid #000; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 8px 18px -6px rgb(0 0 0 / 0.45); }
+[data-ui="new"] :is(.store-app, .fan-skin) .btn-ink::before { background: linear-gradient(rgb(255 255 255 / 0.22), rgb(255 255 255 / 0)); }
+[data-ui="new"] :is(.store-app, .fan-skin) .btn-ghost { color: #0c0c0f; background: var(--gel-white); border: 1px solid rgb(0 0 0 / 0.22); box-shadow: inset 0 1px 0 #fff, 0 6px 16px -6px rgb(0 0 0 / 0.18); }
+[data-ui="new"] :is(.store-app, .fan-skin) .chip-on { background: var(--gel-blue); border-color: #1a3a92; color: #fff; }
+[data-ui="new"] :is(.store-app, .fan-skin) :is(.card, .panel) { border-radius: 20px; border-color: rgb(0 0 0 / 0.06); box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 12px rgb(0 0 0 / 0.05); }
+[data-ui="new"] :is(.store-app, .fan-skin) .input:focus { border-color: #2d5bd2; box-shadow: 0 0 0 4px rgb(45 91 210 / 0.14); }
+[data-ui="new"] :is(.store-app, .fan-skin) :focus-visible { outline-color: #2d5bd2; }
+
+/* on a computer: the phone column sits on the dotted grey desk instead of black */
+@media (min-width: 640px) {
+  [data-ui="new"] .store-app { background-color: #ececef; background-image: var(--dots); background-size: 22px 22px; }
+  [data-ui="new"] .store-app .app-col { box-shadow: 0 0 0 1px rgb(0 0 0 / 0.06), 0 30px 80px -30px rgb(20 40 100 / 0.35); }
+}
+[data-ui="new"] .store-app aside[aria-label="Open on your phone"] { color: #0c0c0f; }
+[data-ui="new"] .store-app aside[aria-label="Open on your phone"] :is(.text-white\/70, .text-white\/50) { color: rgb(0 0 0 / 0.55); }
+[data-ui="new"] .store-app aside[aria-label="Open on your phone"] img { box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 10px 24px rgb(0 0 0 / 0.12); }
+
+/* the bottom tab bar becomes frosted white glass */
+[data-ui="new"] .store-app nav[aria-label="Sections"] > div {
+  background: rgb(255 255 255 / 0.82);
+  backdrop-filter: blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  box-shadow: 0 0 0 1px rgb(0 0 0 / 0.06), 0 14px 34px -14px rgb(20 40 100 / 0.35);
+}
+[data-ui="new"] .store-app nav[aria-label="Sections"] a.text-white\/55 { color: rgb(0 0 0 / 0.5); }
+[data-ui="new"] .store-app nav[aria-label="Sections"] a.text-white\/55:hover { color: rgb(0 0 0 / 0.85); }

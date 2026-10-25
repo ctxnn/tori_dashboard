@@ -3,12 +3,13 @@ import type { CampaignSummary } from "@/lib/domain/campaigns";
 import { campaignProgress } from "@/lib/domain/orders";
 import { SALES_STATUS, formatDate } from "@/lib/labels";
 import { formatINR } from "@/lib/money";
-import { productName } from "@/lib/catalog";
+import { productName, productNameJa } from "@/lib/catalog";
+import { makeT, type T } from "@/lib/i18n-shared";
 import { Badge, ProgressBar } from "./ui";
 import { Preview } from "./preview";
 
 /** A published campaign as a product proof: crop-marked preview, gate meter, facts. */
-export function CampaignTile({ s, index }: { s: CampaignSummary; index?: number }) {
+export function CampaignTile({ s, index, t = makeT("en") }: { s: CampaignSummary; index?: number; t?: T }) {
   const v = s.published!;
   const p = campaignProgress(s.campaign);
   const st = SALES_STATUS[s.campaign.sales_status];
@@ -21,7 +22,7 @@ export function CampaignTile({ s, index }: { s: CampaignSummary; index?: number 
       <div className="flex h-full flex-col">
         <div className="relative overflow-hidden rounded-[var(--radius-card)] border border-sand bg-[#ECEBE5] transition-shadow group-hover:shadow-[var(--shadow-lift)]">
           <Preview svg={v.previewSvg} className="transition-transform duration-500 group-hover:scale-[1.025]" />
-          <div className="absolute left-3 top-3"><Badge tone={st.tone}>{st.label}</Badge></div>
+          <div className="absolute left-3 top-3"><Badge tone={st.tone}>{t(st.label, st.ja)}</Badge></div>
           {index !== undefined && <div className="label absolute right-4 top-4 text-ink/40">No. {String(index + 1).padStart(2, "0")}</div>}
         </div>
         <div className="flex flex-1 flex-col pt-4">
@@ -30,15 +31,19 @@ export function CampaignTile({ s, index }: { s: CampaignSummary; index?: number 
             <span className="font-mono text-sm text-ink">{formatINR(v.content.offer.priceMinor)}</span>
           </div>
           <p className="mt-0.5 text-[13px] text-moss">
-            {s.creator.name} · {productName(v.content.productId)}
+            {s.creator.name} · {t(productName(v.content.productId), productNameJa(v.content.productId))}
           </p>
           <div className="mt-auto pt-4">
             <ProgressBar value={p.paidUnits} max={p.threshold} />
             <div className="mt-2 flex justify-between font-mono text-[11px] text-moss">
               <span>
-                <span className="text-ink">{p.paidUnits}</span>/{p.threshold} paid
+                <span className="text-ink">{p.paidUnits}</span>/{p.threshold} {t("paid", "決済済み")}
               </span>
-              <span>{p.deadlinePassed ? `closed ${formatDate(p.deadline, { day: "numeric", month: "short" })}` : `${p.daysLeft}d left`}</span>
+              <span>
+                {p.deadlinePassed
+                  ? t(`closed ${formatDate(p.deadline, { day: "numeric", month: "short" })}`, `${t.date(p.deadline, { month: "short", day: "numeric" })} 終了`)
+                  : t(`${p.daysLeft}d left`, `残り${p.daysLeft}日`)}
+              </span>
             </div>
           </div>
         </div>

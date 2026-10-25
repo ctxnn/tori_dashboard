@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useT } from "@/components/i18n-client";
 
 export const ITEMS = [
   { href: "/partner/dashboard", en: "Overview", ja: "概要", icon: "M3 12h7V3H3zM14 21h7v-9h-7zM14 3v5h7V3zM3 21h7v-5H3z" },
@@ -12,6 +13,7 @@ export const ITEMS = [
 
 export default function PartnerNav({ badge }: { badge?: Record<string, number> }) {
   const path = usePathname() || "";
+  const t = useT();
   return (
     <nav aria-label="Partner Portal" className="no-scrollbar flex gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
       {ITEMS.map((it) => {
@@ -22,8 +24,8 @@ export default function PartnerNav({ badge }: { badge?: Record<string, number> }
             className={`group flex shrink-0 items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] font-semibold transition-colors duration-300 ${on ? "bg-white text-[rgb(24,21,34)] shadow-panel-sm" : "text-white/70 hover:bg-white/10 hover:text-white"}`}>
             <svg className="h-[18px] w-[18px] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden><path d={it.icon} /></svg>
             <span className="flex flex-col leading-tight">
-              <span>{it.en}</span>
-              <span className={`jp hidden text-[11px] font-normal lg:block ${on ? "text-[rgb(24,21,34)]/55" : "text-white/45"}`}>{it.ja}</span>
+              <span className={t.ja ? "jp" : ""}>{t(it.en, it.ja)}</span>
+              <span className={`hidden text-[11px] font-normal lg:block ${t.ja ? "" : "jp"} ${on ? "text-[rgb(24,21,34)]/55" : "text-white/45"}`}>{t(it.ja, it.en)}</span>
             </span>
             {!!n && <span className="ml-auto rounded-full bg-[rgb(222,0,52)] px-1.5 text-[11px] font-bold text-white">{n}</span>}
           </Link>

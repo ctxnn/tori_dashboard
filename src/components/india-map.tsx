@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { MAP_DOTS, MAP_H, MAP_W, OUTLINE_PATH, project } from "@/lib/india";
 import { cx } from "./ui";
+import { useT } from "./i18n-client";
 
 export interface MapCity {
   city: string;
@@ -23,6 +24,7 @@ export function IndiaMap({ cities, dark = false, showBackers = false, className,
   const sorted = [...cities].sort((a, b) => b.interest - a.interest);
   const hit = active ? cities.find((c) => c.city === active) : null;
   const [hx, hy] = hit ? project(hit.lon, hit.lat) : [0, 0];
+  const t = useT();
 
   return (
     <div className={cx("relative", className)}>
@@ -41,7 +43,7 @@ export function IndiaMap({ cities, dark = false, showBackers = false, className,
               key={c.city}
               tabIndex={0}
               role="button"
-              aria-label={`${c.city}: ${c.interest} interested${showBackers ? `, ${c.backers ?? 0} paid backers` : ""}`}
+              aria-label={t(`${c.city}: ${c.interest} interested${showBackers ? `, ${c.backers ?? 0} paid backers` : ""}`, `${c.city}：購入意向 ${c.interest}人${showBackers ? `、決済済み ${c.backers ?? 0}人` : ""}`)}
               onPointerEnter={() => setActive(c.city)}
               onPointerLeave={() => setActive(null)}
               onFocus={() => setActive(c.city)}
@@ -73,11 +75,11 @@ export function IndiaMap({ cities, dark = false, showBackers = false, className,
         >
           <b className="font-semibold">{hit.city}</b>
           <br />
-          {hit.interest} said they’d buy
+          {t(`${hit.interest} said they’d buy`, `購入意向あり ${hit.interest}人`)}
           {showBackers && (
             <>
               <br />
-              {hit.backers ?? 0} have paid for a run
+              {t(`${hit.backers ?? 0} have paid for a run`, `決済済み ${hit.backers ?? 0}人`)}
             </>
           )}
         </div>

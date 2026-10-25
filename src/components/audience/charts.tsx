@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { cx } from "@/components/ui";
 import { formatINR } from "@/lib/money";
+import { useT } from "@/components/i18n-client";
+import { pulseJa } from "@/lib/pulse-ja";
 
 /**
  * Share of interested fans who'd pay at least each price. Current tee campaigns
@@ -10,6 +12,7 @@ import { formatINR } from "@/lib/money";
  */
 export function PriceCurve({ points, marks }: { points: { priceMinor: number; share: number }[]; marks: { title: string; priceMinor: number; reach: number }[] }) {
   const [hover, setHover] = useState<number | null>(null);
+  const t = useT();
   const W = 900;
   const H = 300;
   const pad = { l: 40, r: 16, t: 44, b: 30 };
@@ -35,7 +38,7 @@ export function PriceCurve({ points, marks }: { points: { priceMinor: number; sh
         viewBox={`0 0 ${W} ${H}`}
         className="block w-full touch-none"
         role="img"
-        aria-label={`Share of interested fans who would pay at least each price: ${points.map((p) => `${formatINR(p.priceMinor)} ${Math.round(p.share * 100)}%`).join(", ")}`}
+        aria-label={`${t("Share of interested fans who would pay at least each price", "各価格以上を支払ってもよいファンの割合")}: ${points.map((p) => `${formatINR(p.priceMinor)} ${Math.round(p.share * 100)}%`).join(", ")}`}
         onPointerMove={(e) => {
           const r = e.currentTarget.getBoundingClientRect();
           const px = ((e.clientX - r.left) / r.width) * W;
@@ -69,7 +72,7 @@ export function PriceCurve({ points, marks }: { points: { priceMinor: number; sh
               <line x1={x(price)} x2={x(price)} y1={ly + 4} y2={y(0)} stroke="var(--color-ink)" strokeDasharray="3 3" strokeWidth="1" />
               <circle cx={x(price)} cy={y(m.reach)} r="5" fill="var(--color-ink)" stroke="var(--color-card)" strokeWidth="2" />
               <text x={x(price) + (left ? -6 : 6)} y={ly} textAnchor={left ? "end" : "start"} className="fill-ink font-mono text-[11px]">
-                {m.titles.join(", ")} · {formatINR(price).replace(".00", "")} reaches {Math.round(m.reach * 100)}%
+                {m.titles.join(", ")} · {t(`${formatINR(price).replace(".00", "")} reaches ${Math.round(m.reach * 100)}%`, `${formatINR(price).replace(".00", "")}で${Math.round(m.reach * 100)}%に到達`)}
               </text>
             </g>
           );
@@ -87,7 +90,7 @@ export function PriceCurve({ points, marks }: { points: { priceMinor: number; sh
           style={{ left: `${(x(h.priceMinor) / W) * 100}%`, top: `${(y(h.share) / H) * 100}%` }}
           role="status"
         >
-          <b className="font-semibold">{Math.round(h.share * 100)}%</b> would pay {formatINR(h.priceMinor)} or more
+          {t(<><b className="font-semibold">{Math.round(h.share * 100)}%</b> would pay {formatINR(h.priceMinor)} or more</>, <><b className="font-semibold">{Math.round(h.share * 100)}%</b>が{formatINR(h.priceMinor)}以上を支払ってもよいと回答</>)}
         </div>
       )}
     </div>
@@ -97,6 +100,7 @@ export function PriceCurve({ points, marks }: { points: { priceMinor: number; sh
 /** Horizontal share bars. `muted` rows are drawn hatched with a text tag, never colour alone. */
 export function ShareBars({ rows, tag }: { rows: { id: string; label: string; n: number; share: number; muted?: boolean }[]; tag?: string }) {
   const [hover, setHover] = useState<string | null>(null);
+  const t = useT();
   const max = Math.max(0.0001, ...rows.map((r) => r.share));
   return (
     <ul className="space-y-2.5">
@@ -108,7 +112,7 @@ export function ShareBars({ rows, tag }: { rows: { id: string; label: string; n:
           onPointerLeave={() => setHover(null)}
         >
           <span className="flex min-w-0 items-center gap-1.5 text-[12.5px] text-ink-2">
-            <span className="truncate">{r.label}</span>
+            <span className="truncate">{t(r.label, pulseJa(r.id, pulseJa(r.label, r.label)))}</span>
             {r.muted && tag && <span className="label shrink-0 rounded-[3px] border border-dashed border-moss/60 px-1 text-[8.5px] text-moss">{tag}</span>}
           </span>
           <span className="flex items-center">
@@ -122,7 +126,7 @@ export function ShareBars({ rows, tag }: { rows: { id: string; label: string; n:
               aria-hidden
             />
             <span className="ml-2 font-mono text-[11.5px] text-ink">{Math.round(r.share * 100)}%</span>
-            <span className={cx("ml-2 font-mono text-[10.5px] text-moss transition-opacity", hover === r.id ? "opacity-100" : "opacity-0")}>{r.n} fans</span>
+            <span className={cx("ml-2 font-mono text-[10.5px] text-moss transition-opacity", hover === r.id ? "opacity-100" : "opacity-0")}>{t(`${r.n} fans`, `${r.n}人`)}</span>
           </span>
         </li>
       ))}

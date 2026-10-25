@@ -12,6 +12,7 @@ import { formatINR } from "./money";
 import { audienceInsights, requireAudienceView } from "./domain/audience";
 import { requireKit } from "./domain/kits";
 import type { User } from "./domain/core";
+import { pulseJa } from "./pulse-ja";
 
 export interface AudienceSummary {
   source: "claude" | "offline";
@@ -33,7 +34,8 @@ const SummarySchema = z.object({
     .describe("Exactly three concrete next moves, most valuable first"),
 });
 
-function offline(a: ReturnType<typeof audienceInsights>): AudienceSummary {
+function offline(a: ReturnType<typeof audienceInsights>, out: "en" | "ja" = "en"): AudienceSummary {
+  if (out === "ja") return offlineJa(a);
   const gap = a.findings.find((f) => f.title.startsWith("Untapped"));
   const missing = a.wants.filter((w) => !w.inKit).slice(0, 2);
   // The highest price that still reaches most interested fans.
@@ -53,12 +55,42 @@ function offline(a: ReturnType<typeof audienceInsights>): AudienceSummary {
   };
 }
 
-export async function summariseAudience(input: { kitId: string; actor: User }): Promise<AudienceSummary> {
+/** The computed summary in polite Japanese, for an IP owner reading the portal in Japanese. */
+function offlineJa(a: ReturnType<typeof audienceInsights>): AudienceSummary {
+  const gap = a.findings.find((f) => f.title.startsWith("Untapped"));
+  const missing = a.wants.filter((w) => !w.inKit).slice(0, 2);
+  const lower = [...a.priceCurve].reverse().find((p) => p.share >= 0.6);
+  const lang = a.languages.find((l) => l.id !== "ja_en" && l.id !== "en");
+  const moves = [
+    gap && { title: "北東部でクリエイターを募集する", detail: `${gap.ja?.detail ?? gap.detail}独自のファンを持つ現地のクリエイターと組むことが、最も費用を抑えた参入方法です。` },
+    lower && {
+      title: `${formatINR(lower.priceMinor)}のTシャツを試す`,
+      detail: `購入意向のあるファンの${Math.round(lower.share * 100)}%が${formatINR(lower.priceMinor)}を支払ってもよいと回答しています。現在のTシャツはこれより高い価格帯です。`,
+    },
+    missing.length && {
+      title: `${missing.map((m) => pulseJa(m.id, m.label)).join("と")}をキットに加える`,
+      detail: `${missing.map((m) => `${Math.round(m.share * 100)}%が${pulseJa(m.id, m.label)}を希望`).join("、")}しています。手頃な価格の商品は、学生の予算にも合います。`,
+    },
+    lang && {
+      title: `${pulseJa(lang.id, lang.label)}のファン向けにクリエイターへ共有する`,
+      detail: `${Math.round(lang.share * 100)}%が${pulseJa(lang.id, lang.label)}で視聴しています。その言語での印刷テキストや字幕は、より広く届きます。`,
+    },
+  ].filter(Boolean) as { title: string; detail: string }[];
+  return {
+    source: "offline",
+    note: "AIキーが設定されていないため、Toriiが数値から算出した要約です。",
+    headline: `${a.cities.length}都市の${a.total}人のファンからご要望が寄せられ、すでに${Math.round(a.conversion.rate * 100)}%が予約にご参加いただいています。`,
+    moves: moves.slice(0, 3),
+  };
+}
+
+export async function summariseAudience(input: { kitId: string; actor: User; lang?: "en" | "ja" }): Promise<AudienceSummary> {
   const kit = requireKit(input.kitId);
   requireAudienceView(input.actor, kit);
   const a = audienceInsights(kit.id);
-  if (!a.total) return { source: "offline", headline: "No pulse answers yet.", moves: [] };
-  if (!aiAvailable()) return offline(a);
+  const ja = input.lang === "ja";
+  if (!a.total) return { source: "offline", headline: ja ? "まだアンケートの回答はございません。" : "No pulse answers yet.", moves: [] };
+  if (!aiAvailable()) return offline(a, input.lang);
 
   const facts = {
     property: kit.property_name,
@@ -85,17 +117,21 @@ export async function summariseAudience(input: { kitId: string; actor: User }): 
         "You advise a Japanese IP owner's licensing team on official merchandise collaborations with Indian creators.",
         "You get aggregated answers from a fan pulse (percentages are shares of all respondents) and what fans actually paid for.",
         "Recommend three concrete, specific next moves the owner can take within the existing workflow: which regions to recruit creators in, price points to test, products to add to the asset kit, how to localise.",
-        "Cite the numbers. Don't invent data that isn't in the facts. Plain, warm English for a busy reader.",
+        "Cite the numbers. Don't invent data that isn't in the facts.",
+        ja
+          ? "Write in natural, polite business Japanese (です・ます調, with appropriate keigo for a rights holder). Keep city names, product names and rupee amounts as given."
+          : "Plain, warm English for a busy reader.",
       ].join("\n"),
       messages: [{ role: "user", content: JSON.stringify(facts) }],
       output_config: { effort: "low", format: betaZodOutputFormat(SummarySchema) },
     });
-    if (response.stop_reason === "refusal" || !response.parsed_output) return { ...offline(a), note: "The AI couldn’t summarise this, so Torii computed it instead." };
+    if (response.stop_reason === "refusal" || !response.parsed_output)
+      return { ...offline(a, input.lang), note: ja ? "AIで要約できなかったため、Toriiが算出いたしました。" : "The AI couldn’t summarise this, so Torii computed it instead." };
     return { source: "claude", model: response.model, headline: response.parsed_output.headline, moves: response.parsed_output.moves.slice(0, 3) };
   } catch (err) {
     if (err instanceof Anthropic.APIError || err instanceof Anthropic.APIConnectionError) {
       console.error("audience summary:", err.message);
-      return { ...offline(a), note: "The AI service was unavailable, so Torii computed this summary instead." };
+      return { ...offline(a, input.lang), note: ja ? "AIサービスをご利用いただけなかったため、Toriiが要約を算出いたしました。" : "The AI service was unavailable, so Torii computed this summary instead." };
     }
     throw err;
   }

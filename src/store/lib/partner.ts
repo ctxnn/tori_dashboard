@@ -75,11 +75,11 @@ export function pickPages(c: PartnerChapter, lang: Lang): { lang: Lang; ids: str
 export function checklist(sub: Submission) {
   const first = sortedChapters(sub)[0];
   return [
-    { key: "details", label: "Title, author and synopsis", done: !!sub.title.trim() && !!sub.author.trim() && sub.synopsis.trim().length >= 40 },
-    { key: "genres", label: "At least one genre", done: sub.genres.length > 0 },
-    { key: "cover", label: "Cover art uploaded", done: !!sub.coverId },
-    { key: "rights", label: "Digital rights and at least one language for India", done: sub.rights.digital && sub.rights.languages.length > 0 },
-    { key: "chapter", label: "Chapter 1 has pages and a release time", done: !!first && first.number === 1 && hasPages(first) && !!first.releaseAt },
+    { key: "details", label: "Title, author and synopsis", ja: "タイトル・作者・あらすじ", done: !!sub.title.trim() && !!sub.author.trim() && sub.synopsis.trim().length >= 40 },
+    { key: "genres", label: "At least one genre", ja: "ジャンルを1つ以上", done: sub.genres.length > 0 },
+    { key: "cover", label: "Cover art uploaded", ja: "表紙画像のアップロード", done: !!sub.coverId },
+    { key: "rights", label: "Digital rights and at least one language for India", ja: "電子配信の権利と、インド向けの言語を1つ以上", done: sub.rights.digital && sub.rights.languages.length > 0 },
+    { key: "chapter", label: "Chapter 1 has pages and a release time", ja: "第1話の原稿と配信日時", done: !!first && first.number === 1 && hasPages(first) && !!first.releaseAt },
   ];
 }
 export const readyToSubmit = (sub: Submission) => checklist(sub).every((c) => c.done);
@@ -99,9 +99,9 @@ export function publisherEvents(db: DB, publisherId: string) {
   return db.events.filter((e) => ids.has(e.seriesId));
 }
 
-export function fmtDate(iso: string | null | undefined, withTime = false) {
+export function fmtDate(iso: string | null | undefined, withTime = false, locale = "en-IN") {
   if (!iso) return "";
-  return new Date(iso).toLocaleString("en-IN", withTime
+  return new Date(iso).toLocaleString(locale, withTime
     ? { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit", timeZone: "Asia/Kolkata" }
     : { day: "numeric", month: "short", year: "numeric", timeZone: "Asia/Kolkata" });
 }

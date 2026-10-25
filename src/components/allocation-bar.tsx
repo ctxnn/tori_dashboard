@@ -1,4 +1,5 @@
 import { formatINR } from "@/lib/money";
+import { makeT, type T } from "@/lib/i18n-shared";
 
 export interface Slice {
   label: string;
@@ -8,9 +9,9 @@ export interface Slice {
 }
 
 /** Where every rupee of net item sales goes, as one stacked bar. */
-export function AllocationBar({ total, slices }: { total: number; slices: Slice[] }) {
+export function AllocationBar({ total, slices, t = makeT("en") }: { total: number; slices: Slice[]; t?: T }) {
   if (total <= 0) {
-    return <div className="grid-paper flex h-14 items-center justify-center rounded-md border border-dashed border-sand-2 text-sm text-moss">Nothing delivered yet — earnings appear here on delivery.</div>;
+    return <div className="grid-paper flex h-14 items-center justify-center rounded-md border border-dashed border-sand-2 text-sm text-moss">{t("Nothing delivered yet — earnings appear here on delivery.", "まだお届けした商品はございません。収益はお届け時にこちらへ表示されます。")}</div>;
   }
   return (
     <figure>
