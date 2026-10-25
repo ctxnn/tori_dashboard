@@ -32,7 +32,7 @@ const TONE_TEXT: Record<Tone, string> = {
 /** Status tag: a coloured dot and a short label. */
 export function Badge({ tone = "neutral", children, className }: { tone?: Tone; children: ReactNode; className?: string }) {
   return (
-    <span className={cx("inline-flex items-center gap-1.5 whitespace-nowrap rounded-[5px] px-2 py-[3px] text-[12px] font-medium leading-none", TONE_TEXT[tone], className)}>
+    <span className={cx("ui-badge inline-flex items-center gap-1.5 whitespace-nowrap rounded-[5px] px-2 py-[3px] text-[12px] font-medium leading-none", TONE_TEXT[tone], className)}>
       <span className={cx("h-1.5 w-1.5 shrink-0 rounded-full", tone === "pine" ? "bg-vermilion" : DOT[tone])} aria-hidden />
       {children}
     </span>
@@ -52,6 +52,7 @@ export type ButtonVariant = keyof typeof BTN;
 export function buttonClass(variant: ButtonVariant = "primary", size: "sm" | "md" | "lg" = "md") {
   const sizes = { sm: "h-8 px-3 text-[13px]", md: "h-10 px-4 text-sm", lg: "h-12 px-6 text-[15px]" };
   return cx(
+    `ui-btn ui-btn-${variant}`,
     "group/btn inline-flex items-center justify-center gap-2 rounded-lg font-medium tracking-[-0.01em] transition-[background-color,box-shadow,color,transform] active:translate-y-px disabled:pointer-events-none disabled:opacity-45",
     sizes[size],
     BTN[variant],
@@ -76,7 +77,7 @@ export function Arrow({ className }: { className?: string }) {
 
 export function Card({ className, children, ...props }: ComponentProps<"section">) {
   return (
-    <section className={cx("rounded-[var(--radius-card)] border border-sand bg-card", className)} {...props}>
+    <section className={cx("ui-card rounded-[var(--radius-card)] border border-sand bg-card", className)} {...props}>
       {children}
     </section>
   );
@@ -161,7 +162,7 @@ export function StageRail({ current, className, dark = false }: { current: numbe
             <span
               className={cx(
                 "flex items-center gap-1.5 rounded-full px-1.5 py-1 text-[11px] font-medium",
-                active ? "bg-vermilion text-white" : dark ? (done ? "text-paper/80" : "text-paper/40") : done ? "text-ink-2" : "text-moss/70",
+                active ? "ui-stage-on bg-vermilion text-white" : dark ? (done ? "text-paper/80" : "text-paper/40") : done ? "text-ink-2" : "text-moss/70",
               )}
             >
               <StageIcon n={s.n} className="h-4 w-4" />
@@ -194,10 +195,12 @@ export function PageHeader({
   meta?: [string, ReactNode][];
 }) {
   return (
-    <header className="mb-10">
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-sand pb-3">
-        <div className="label flex items-center gap-2 text-moss">
-          <span className="h-2 w-2 bg-vermilion" aria-hidden />
+    <header className="ui-pagehead mb-10">
+      <div className="ui-pagehead-bar mb-6 flex flex-wrap items-center justify-between gap-3 border-b border-sand pb-3">
+        <div className="label flex items-center gap-2.5 text-moss">
+          <span className="relative h-3 w-3 shrink-0 rounded-full bg-vermilion" aria-hidden>
+            <span className="absolute inset-x-[-4px] top-1/2 h-px -translate-y-1/2 bg-ink/30" />
+          </span>
           {eyebrow}
         </div>
         {stage && <StageRail current={stage} />}
@@ -229,7 +232,7 @@ export function PageHeader({
 
 export function Notice({ tone = "info", title, children, className }: { tone?: Tone; title?: ReactNode; children?: ReactNode; className?: string }) {
   return (
-    <div className={cx("flex gap-3 rounded-lg border border-sand bg-card px-4 py-3 text-sm", className)} role={tone === "fail" ? "alert" : undefined}>
+    <div className={cx("ui-notice flex gap-3 rounded-lg border border-sand bg-card px-4 py-3 text-sm", className)} role={tone === "fail" ? "alert" : undefined}>
       <span className={cx("mt-1.5 h-2 w-2 shrink-0 rounded-full", DOT[tone])} aria-hidden />
       <div className="min-w-0">
         {title && <div className="font-medium text-ink">{title}</div>}
@@ -241,7 +244,7 @@ export function Notice({ tone = "info", title, children, className }: { tone?: T
 
 export function EmptyState({ title, children, action }: { title: string; children?: ReactNode; action?: ReactNode }) {
   return (
-    <div className="grid-paper flex flex-col items-center rounded-[var(--radius-card)] border border-sand px-6 py-14 text-center">
+    <div className="ui-empty grid-paper flex flex-col items-center rounded-[var(--radius-card)] border border-sand px-6 py-14 text-center">
       <ToriiMark className="mb-4 h-9 w-9 text-sand-2" />
       <div className="text-lg font-semibold text-ink">{title}</div>
       {children && <p className="mt-1 max-w-md text-sm text-moss">{children}</p>}
@@ -273,8 +276,8 @@ export function ProgressBar({ value, max, label, dark = false, size = "md" }: { 
   const met = value >= max && max > 0;
   return (
     <div className="relative pt-1" role="progressbar" aria-valuemin={0} aria-valuemax={max} aria-valuenow={value} aria-label={label ?? "Paid units towards the production threshold"}>
-      <div className={cx("relative overflow-hidden rounded-full", size === "lg" ? "h-2.5" : "h-1.5", dark ? "bg-paper/15" : "bg-ivory")}>
-        <div className={cx("absolute inset-y-0 left-0 rounded-full transition-[width] duration-700", met ? "bg-ok" : "bg-vermilion")} style={{ width: `${pct}%` }} />
+      <div className={cx("ui-meter relative overflow-hidden rounded-full", size === "lg" ? "h-2.5" : "h-1.5", dark ? "bg-paper/15" : "bg-ivory")}>
+        <div className={cx("ui-meter-fill absolute inset-y-0 left-0 rounded-full transition-[width] duration-700", met ? "bg-ok" : "bg-vermilion")} style={{ width: `${pct}%` }} />
         {/* stripes beyond the gate */}
         <div className="absolute inset-y-0 right-0 bg-[repeating-linear-gradient(135deg,transparent_0_3px,rgb(0_0_0/0.06)_3px_5px)]" style={{ left: `${gate}%` }} />
       </div>
@@ -319,7 +322,7 @@ export function ProofFrame({ children, className, label, corner }: { children: R
 
 /** Hanko-style approval seal. */
 export function Seal({ label = "Approved", sub, className, tone = "vermilion" }: { label?: string; sub?: string; className?: string; tone?: "vermilion" | "moss" | "paper" }) {
-  const c = tone === "vermilion" ? "text-vermilion" : tone === "paper" ? "text-paper" : "text-moss";
+  const c = tone === "vermilion" ? "text-[var(--torii-red,var(--color-vermilion))]" : tone === "paper" ? "text-paper" : "text-moss";
   return (
     <svg viewBox="0 0 120 120" className={cx("h-20 w-20 -rotate-6", c, className)} role="img" aria-label={`${label}${sub ? ` ${sub}` : ""}`}>
       <circle cx="60" cy="60" r="55" fill="none" stroke="currentColor" strokeWidth="3" />
@@ -345,7 +348,7 @@ export function Field({ label, hint, error, children, htmlFor, optional }: { lab
 }
 
 export const inputClass =
-  "block w-full rounded-lg border border-sand-2 bg-card px-3 py-2 text-sm text-ink placeholder:text-moss/60 transition-colors hover:border-moss/60 focus:border-ink focus:outline-none focus:ring-4 focus:ring-ink/5 disabled:border-sand disabled:bg-ivory/60 disabled:text-moss";
+  "ui-input block w-full rounded-lg border border-sand-2 bg-card px-3 py-2 text-sm text-ink placeholder:text-moss/60 transition-colors hover:border-moss/60 focus:border-ink focus:outline-none focus:ring-4 focus:ring-ink/5 disabled:border-sand disabled:bg-ivory/60 disabled:text-moss";
 
 export function Input(props: ComponentProps<"input">) {
   return <input {...props} className={cx(inputClass, props.className)} />;

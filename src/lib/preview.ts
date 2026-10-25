@@ -106,7 +106,11 @@ function poster(input: PreviewInput, base: string, ink: string): string {
     inner += textEl(t.line2, 300, 402, fitSize(t.line2, 13, 280, 0.52), "sans", ink, 'letter-spacing="1.4"');
   }
   if (input.creditLine) {
-    inner += `<text x="300" y="472" text-anchor="middle" fill="${ink}" opacity="0.6" style="font-family:${FONTS.sans.css};font-size:8.5px;letter-spacing:1px">${escapeXml(input.creditLine.toUpperCase())}</text>`;
+    // Fit inside the poster (or its frame), never across the border.
+    const room = layoutId === "framed" ? w - 56 : w - 30;
+    const credit = input.creditLine.toUpperCase();
+    const fs = Math.min(8.5, room / (credit.length * 0.74)).toFixed(2);
+    inner += `<text x="300" y="${layoutId === "framed" ? 464 : 472}" text-anchor="middle" fill="${ink}" opacity="0.6" style="font-family:${FONTS.sans.css};font-size:${fs}px;letter-spacing:0.8px">${escapeXml(credit)}</text>`;
   }
   return `
 <rect x="${x + 8}" y="${y + 10}" width="${w}" height="${h}" fill="#000" opacity="0.12" rx="2"/>

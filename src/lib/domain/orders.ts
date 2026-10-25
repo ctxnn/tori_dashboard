@@ -8,6 +8,8 @@ import { id, nowIso, publicRef, todayIso, token } from "../util";
 import { audit, type User } from "./core";
 import { getCampaignBySlug, getVersion, isApproved, type Campaign, type CampaignVersion } from "./campaigns";
 import { getProvider } from "./payments/provider";
+import { backerStatus, launchPhase } from "./community";
+import { formatDate } from "../labels";
 
 export type OrderStatus =
   | "pending_payment"
@@ -114,7 +116,11 @@ export const CheckoutSchema = z.object({
   checkoutKey: z.string().min(8).max(64),
 });
 
-export function canOrder(c: Campaign | undefined): { ok: true; version: CampaignVersion } | { ok: false; reason: string } {
+/**
+ * Whether preorders are open for this visitor. Before launch day, past backers of
+ * the same property get a backers' day; everyone else waits for the launch date.
+ */
+export function canOrder(c: Campaign | undefined, fan?: User): { ok: true; version: CampaignVersion; earlyAccess: boolean } | { ok: false; reason: string } {
   if (!c || !c.published_version_id) return { ok: false, reason: "This campaign isn't published." };
   if (c.sales_status !== "live") {
     const reasons: Record<string, string> = {
@@ -127,9 +133,17 @@ export function canOrder(c: Campaign | undefined): { ok: true; version: Campaign
   }
   const v = getVersion(c.published_version_id)!;
   if (todayIso() > v.content.offer.deadline) return { ok: false, reason: "The preorder deadline has passed." };
-  if (todayIso() < v.content.offer.launchDate) return { ok: false, reason: `Preorders open on ${v.content.offer.launchDate}.` };
   if (!isApproved(v)) return { ok: false, reason: "This version is awaiting fresh approval." };
-  return { ok: true, version: v };
+  const phase = launchPhase(v.content.offer.launchDate);
+  if (phase.phase === "open") return { ok: true, version: v, earlyAccess: false };
+  if (phase.phase === "backers" && fan?.role === "fan" && backerStatus(fan.id, c.kit_id).backed > 0) return { ok: true, version: v, earlyAccess: true };
+  return {
+    ok: false,
+    reason:
+      phase.phase === "backers"
+        ? `Backers’ day: fans who backed an earlier run can preorder today. Everyone else from ${formatDate(phase.launchDate)}.`
+        : `Preorders open on ${formatDate(phase.launchDate)}. Past backers get in a day early, on ${formatDate(phase.backersFrom)}.`,
+  };
 }
 
 export async function createOrder(raw: unknown, fan?: User): Promise<{ order: Order; checkoutUrl: string }> {
@@ -147,7 +161,7 @@ export async function createOrder(raw: unknown, fan?: User): Promise<{ order: Or
 
   const campaign = getCampaignBySlug(input.slug);
   if (!campaign) throw notFound("Campaign");
-  const allowed = canOrder(campaign);
+  const allowed = canOrder(campaign, fan);
   if (!allowed.ok) throw conflict(allowed.reason);
   const v = allowed.version;
   if (!v.content.offer.sizes.includes(input.size)) throw badRequest("That size isn't offered");
@@ -170,7 +184,7 @@ export async function createOrder(raw: unknown, fan?: User): Promise<{ order: Or
       "INSERT INTO payment_intents (id, order_id, provider, amount_minor, status, livemode, created_at, updated_at) VALUES (?, ?, ?, ?, 'requires_payment', ?, ?, ?)",
       id("pi"), orderId, provider.name, total, provider.livemode ? 1 : 0, ts, ts,
     );
-    audit(fan?.id ?? null, "order.created", "order", orderId, { campaignId: campaign.id, versionId: v.id, total });
+    audit(fan?.id ?? null, "order.created", "order", orderId, { campaignId: campaign.id, versionId: v.id, total, earlyAccess: allowed.earlyAccess });
     return getOrder(orderId)!;
   });
 

@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 500" preserveAspectRatio="xMidYMid slice">
+  <!-- Sky Courier is a fictional demonstration property (© Kumo Lantern Studio, demo). -->
+  <defs>
+    <linearGradient id="dusk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0E1C18"/><stop offset=".7" stop-color="#1E3A32"/><stop offset="1" stop-color="#3B2A22"/></linearGradient>
+    <pattern id="tone" width="10" height="10" patternUnits="userSpaceOnUse"><circle cx="5" cy="5" r="1.4" fill="#F3E9D6" opacity=".12"/></pattern>
+  </defs>
+  <rect width="1600" height="500" fill="url(#dusk)"/>
+  <rect width="1600" height="500" fill="url(#tone)"/>
+  <svg x="760" y="-150" width="800" height="800" viewBox="0 0 800 800">
+  <g fill="#F3E9D6">
+    <circle cx="140" cy="150" r="5"/><circle cx="660" cy="120" r="6"/><circle cx="560" cy="250" r="4"/>
+    <circle cx="230" cy="300" r="4"/><circle cx="700" cy="420" r="5"/><circle cx="110" cy="480" r="4"/>
+    <path d="M340 110 l8 22 22 8 -22 8 -8 22 -8 -22 -22 -8 22 -8z"/>
+    <path d="M640 560 l6 16 16 6 -16 6 -6 16 -6 -16 -16 -6 16 -6z"/>
+  </g>
+  <path d="M470 160 a170 170 0 1 0 170 230 a140 140 0 1 1 -170 -230z" fill="#F3E9D6"/>
+  <path d="M120 640 C 220 520, 330 640, 430 520 S 600 380, 690 300" fill="none" stroke="#F3E9D6" stroke-width="8" stroke-dasharray="4 22" stroke-linecap="round"/>
+  <g transform="translate(690 300) rotate(-35)">
+    <polygon points="-60,0 50,-30 -5,30" fill="#D9472B" stroke="#F3E9D6" stroke-width="6" stroke-linejoin="round"/>
+  </g>
+  <g transform="translate(120 640)">
+    <rect x="-46" y="-34" width="92" height="68" rx="8" fill="#D9472B" stroke="#F3E9D6" stroke-width="6"/>
+    <path d="M-46 -10 L46 -10 M0 -34 L0 34" stroke="#F3E9D6" stroke-width="6"/>
+  </g>
+</svg>
+  <g fill="#F3E9D6" opacity=".55"><circle cx="120" cy="90" r="3"/><circle cx="380" cy="60" r="4"/><circle cx="560" cy="150" r="3"/><circle cx="260" cy="210" r="2.5"/></g>
+  <g fill="#D9472B" opacity=".85">
+    <path d="M0 500 L0 410 L80 380 L140 400 L210 350 L300 395 L380 360 L470 400 L560 370 L640 410 L700 380 L700 500Z"/>
+  </g>
+  <g fill="#F3E9D6" opacity=".8"><rect x="96" y="398" width="8" height="10"/><rect x="226" y="372" width="8" height="10"/><rect x="396" y="380" width="8" height="10"/><rect x="576" y="390" width="8" height="10"/></g>
+</svg>

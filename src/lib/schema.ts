@@ -223,6 +223,59 @@ CREATE TABLE IF NOT EXISTS audit_log (
 CREATE INDEX IF NOT EXISTS audit_entity ON audit_log(entity_type, entity_id);
 
 -- ---------------------------------------------------------------------------
+-- Audience discovery: fans tell an IP owner where they are, what they'd buy and
+-- what they'd pay — before any campaign exists. One answer per email per kit.
+-- ---------------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS interest_signals (
+  id TEXT PRIMARY KEY,
+  kit_id TEXT NOT NULL REFERENCES kits(id),
+  fan_user_id TEXT REFERENCES users(id),
+  email TEXT NOT NULL,
+  city TEXT NOT NULL,
+  age_band TEXT NOT NULL,
+  price_minor INTEGER NOT NULL,
+  products_json TEXT NOT NULL,
+  channel TEXT NOT NULL,
+  language TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL,
+  UNIQUE (kit_id, email)
+);
+
+-- Community retention: fans follow a property or a creator to hear about drops.
+CREATE TABLE IF NOT EXISTS follows (
+  user_id TEXT NOT NULL REFERENCES users(id),
+  target_type TEXT NOT NULL CHECK (target_type IN ('kit','creator')),
+  target_id TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  PRIMARY KEY (user_id, target_type, target_id)
+);
+
+-- Anti-counterfeiting: every shipped unit carries one code, tied to the exact
+-- approved version it was made from. Serial numbers count up within a run.
+CREATE TABLE IF NOT EXISTS authenticity_codes (
+  code TEXT PRIMARY KEY,
+  order_id TEXT NOT NULL REFERENCES orders(id),
+  unit_no INTEGER NOT NULL,
+  serial_no INTEGER NOT NULL,
+  campaign_id TEXT NOT NULL REFERENCES campaigns(id),
+  campaign_version_id TEXT NOT NULL REFERENCES campaign_versions(id),
+  content_hash TEXT NOT NULL,
+  issued_at TEXT NOT NULL,
+  UNIQUE (order_id, unit_no),
+  UNIQUE (campaign_id, serial_no)
+);
+
+-- Every lookup, including codes that don't exist (a sign of copies in circulation).
+CREATE TABLE IF NOT EXISTS authenticity_scans (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  code TEXT NOT NULL,
+  found INTEGER NOT NULL,
+  scanned_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS scans_code ON authenticity_scans(code);
+
+-- ---------------------------------------------------------------------------
 -- Payment simulator state. These tables stand in for an external provider's
 -- systems; Torii's own records never read them directly.
 -- ---------------------------------------------------------------------------
@@ -253,5 +306,13 @@ CREATE TABLE IF NOT EXISTS sim_events (
   body TEXT NOT NULL,
   signature TEXT NOT NULL,
   created_at TEXT NOT NULL
+);
+
+-- The fan store (Read / Manga / Figures) and the publisher Partner Portal keep
+-- their changing state as one JSON document; see src/store/lib/db.ts.
+CREATE TABLE IF NOT EXISTS store_state (
+  id INTEGER PRIMARY KEY CHECK (id = 1),
+  doc TEXT NOT NULL,
+  updated_at TEXT NOT NULL
 );
 `;

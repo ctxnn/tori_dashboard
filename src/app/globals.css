@@ -22,6 +22,10 @@
   --color-vermilion-soft: #fbe4de;
   --color-gold: #b3872c;
   --color-gold-soft: #f4ebd5;
+  --color-indigo: #1e2f4d;
+  --color-indigo-soft: #e4e8f0;
+  --color-sakura: #f2c9cf;
+  --color-sakura-soft: #fbeef0;
 
   /* Status */
   --color-ok: #1d7552;
@@ -86,6 +90,43 @@
   50% { opacity: 0; }
 }
 
+/* ---------------------------------------------------------------------------
+   Japanese pattern library. Seigaiha (blue-sea waves) and shippō (seven
+   treasures) tiles, plus a washi fibre texture for paper surfaces.
+   --------------------------------------------------------------------------- */
+.seigaiha { background-color: var(--color-paper); background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='20' viewBox='0 0 40 20'><g fill='%23f5f4ef' stroke='%23e2dfd4' stroke-width='1'><circle cx='20' cy='10' r='20'/><circle cx='20' cy='10' r='15'/><circle cx='20' cy='10' r='10'/><circle cx='20' cy='10' r='5'/><circle cx='0' cy='20' r='20'/><circle cx='0' cy='20' r='15'/><circle cx='0' cy='20' r='10'/><circle cx='0' cy='20' r='5'/><circle cx='40' cy='20' r='20'/><circle cx='40' cy='20' r='15'/><circle cx='40' cy='20' r='10'/><circle cx='40' cy='20' r='5'/><circle cx='20' cy='30' r='20'/><circle cx='20' cy='30' r='15'/><circle cx='20' cy='30' r='10'/><circle cx='20' cy='30' r='5'/></g></svg>"); background-size: 40px 20px; }
+.seigaiha-ink { background-color: var(--color-ink); background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='20' viewBox='0 0 40 20'><g fill='%230e1311' stroke='%23232a26' stroke-width='1'><circle cx='20' cy='10' r='20'/><circle cx='20' cy='10' r='15'/><circle cx='20' cy='10' r='10'/><circle cx='20' cy='10' r='5'/><circle cx='0' cy='20' r='20'/><circle cx='0' cy='20' r='15'/><circle cx='0' cy='20' r='10'/><circle cx='0' cy='20' r='5'/><circle cx='40' cy='20' r='20'/><circle cx='40' cy='20' r='15'/><circle cx='40' cy='20' r='10'/><circle cx='40' cy='20' r='5'/><circle cx='20' cy='30' r='20'/><circle cx='20' cy='30' r='15'/><circle cx='20' cy='30' r='10'/><circle cx='20' cy='30' r='5'/></g></svg>"); background-size: 40px 20px; }
+.seigaiha-red { background-color: var(--color-vermilion); background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='20' viewBox='0 0 40 20'><g fill='%23e2402a' stroke='%23ec6450' stroke-width='1'><circle cx='20' cy='10' r='20'/><circle cx='20' cy='10' r='15'/><circle cx='20' cy='10' r='10'/><circle cx='20' cy='10' r='5'/><circle cx='0' cy='20' r='20'/><circle cx='0' cy='20' r='15'/><circle cx='0' cy='20' r='10'/><circle cx='0' cy='20' r='5'/><circle cx='40' cy='20' r='20'/><circle cx='40' cy='20' r='15'/><circle cx='40' cy='20' r='10'/><circle cx='40' cy='20' r='5'/><circle cx='20' cy='30' r='20'/><circle cx='20' cy='30' r='15'/><circle cx='20' cy='30' r='10'/><circle cx='20' cy='30' r='5'/></g></svg>"); background-size: 32px 16px; }
+.seigaiha-indigo { background-color: var(--color-indigo); background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='20' viewBox='0 0 40 20'><g fill='%231e2f4d' stroke='%232c4166' stroke-width='1'><circle cx='20' cy='10' r='20'/><circle cx='20' cy='10' r='15'/><circle cx='20' cy='10' r='10'/><circle cx='20' cy='10' r='5'/><circle cx='0' cy='20' r='20'/><circle cx='0' cy='20' r='15'/><circle cx='0' cy='20' r='10'/><circle cx='0' cy='20' r='5'/><circle cx='40' cy='20' r='20'/><circle cx='40' cy='20' r='15'/><circle cx='40' cy='20' r='10'/><circle cx='40' cy='20' r='5'/><circle cx='20' cy='30' r='20'/><circle cx='20' cy='30' r='15'/><circle cx='20' cy='30' r='10'/><circle cx='20' cy='30' r='5'/></g></svg>"); background-size: 40px 20px; }
+.shippo { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g fill='none' stroke='rgba%2814%2C19%2C17%2C0.07%29' stroke-width='0.8'><circle cx='12' cy='0' r='12'/><circle cx='0' cy='12' r='12'/><circle cx='24' cy='12' r='12'/><circle cx='12' cy='24' r='12'/></g></svg>"); background-size: 24px 24px; }
+.shippo-dark { background-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'><g fill='none' stroke='rgba%28245%2C244%2C239%2C0.07%29' stroke-width='0.8'><circle cx='12' cy='0' r='12'/><circle cx='0' cy='12' r='12'/><circle cx='24' cy='12' r='12'/><circle cx='12' cy='24' r='12'/></g></svg>"); background-size: 24px 24px; }
+.washi {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012 0.09' numOctaves='3' seed='7'/%3E%3CfeColorMatrix values='0 0 0 0 0.45  0 0 0 0 0.40  0 0 0 0 0.30  0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+}
+
+@keyframes petal-fall {
+  0% { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 0; }
+  10% { opacity: 1; }
+  100% { transform: translate3d(var(--drift, 60px), 105vh, 0) rotate(var(--spin, 540deg)); opacity: 0.2; }
+}
+@keyframes petal-sway {
+  0%, 100% { margin-left: 0; }
+  50% { margin-left: 28px; }
+}
+@keyframes mist {
+  from { transform: translateX(-3%); }
+  to { transform: translateX(3%); }
+}
+@keyframes ink-draw {
+  from { stroke-dashoffset: 1; }
+  to { stroke-dashoffset: 0; }
+}
+@keyframes stamp-in {
+  0% { transform: scale(1.8) rotate(-18deg); opacity: 0; }
+  65% { transform: scale(0.94) rotate(-4deg); opacity: 1; }
+  100% { transform: scale(1) rotate(-6deg); opacity: 1; }
+}
+
 /* Headline lines that lift out of a mask. */
 .lift-line { display: block; overflow: hidden; padding-bottom: 0.06em; margin-bottom: -0.06em; }
 .lift-line > span { display: inline-block; animation: lift 0.95s cubic-bezier(0.2, 0.75, 0.15, 1) both; }
@@ -116,18 +157,20 @@ html {
 
 body {
   font-family: var(--font-sans);
-  background: var(--color-paper);
+  background-color: var(--color-paper);
+  /* washi: long paper fibres, barely there */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.008 0.11' numOctaves='3' seed='11'/%3E%3CfeColorMatrix values='0 0 0 0 0.42  0 0 0 0 0.37  0 0 0 0 0.28  0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
   min-height: 100dvh;
   overflow-x: clip;
   font-feature-settings: "ss01", "cv11";
 }
 
-h1, h2, h3, .font-display {
+:where(h1, h2, h3, .font-display):not(:where(.store-root, .store-root *)) {
   font-family: var(--font-display);
   letter-spacing: -0.025em;
 }
 
-h1 {
+h1:not(:where(.store-root, .store-root *)) {
   letter-spacing: -0.035em;
 }
 
@@ -142,7 +185,7 @@ h1 {
   font-feature-settings: "zero";
 }
 
-.label {
+.label:not(:where(.store-root, .store-root *)) {
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 500;
@@ -169,7 +212,7 @@ h1 {
 }
 
 /* Full-width bands inside the centred main column. */
-.bleed {
+.bleed:not(:where(.store-root, .store-root *)) {
   width: 100vw;
   margin-left: calc(50% - 50vw);
 }
@@ -208,4 +251,134 @@ input[type="range"] {
     animation-delay: 0ms !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ===========================================================================
+   Fan app (Read · Manga · Figures · Collabs · Shelf) and the publisher Partner
+   Portal. They keep their own look: coloured newsprint per section like a manga
+   weekly, violet-black ink, Dela Gothic One headings. Everything is scoped to
+   .store-root, so the workspace pages above are untouched.
+
+   Tailwind utilities read their colours from CSS variables at runtime, so the
+   shared names (card, ink, paper, ok, warn, font-sans, font-display) are simply
+   re-pointed inside the scope.
+   =========================================================================== */
+@theme {
+  --color-bg: rgb(var(--bg));
+  --color-fg: rgb(var(--fg));
+  --color-muted: rgb(var(--muted));
+  --color-line: rgb(var(--line));
+  --color-accent: rgb(var(--accent));
+  --color-accentsoft: rgb(var(--accentsoft));
+  --color-bad: rgb(var(--bad));
+  --shadow-panel: 0 1px 2px rgb(var(--ink) / 0.06), 0 4px 10px -4px rgb(var(--ink) / 0.10), 0 22px 44px -22px rgb(var(--ink) / 0.38);
+  --shadow-panel-sm: 0 1px 2px rgb(var(--ink) / 0.10), 0 8px 18px -10px rgb(var(--ink) / 0.40);
+  --radius-panel: 16px;
+  --animate-page-in: page-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  --animate-fade-in: fade-in 0.35s ease-out both;
+  --animate-badge-in: badge-in 0.45s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+  --animate-shimmer: shimmer 1.6s linear infinite;
+}
+@keyframes page-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes badge-in { from { opacity: 0; transform: translateY(60%); } to { opacity: 1; transform: none; } }
+@keyframes shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+.store-root {
+  --bg: 240 241 246; --card: 255 255 255; --fg: 24 21 34; --ink: 24 21 34; --muted: 104 100 120; --line: 222 223 233;
+  --ok: 0 135 90; --warn: 200 120 0; --bad: 210 28 60;
+  --accent: 222 0 52; --accentsoft: 252 232 237; --paper: 246 224 230;
+  --app-w: 440px;
+  --font-sans: "Hanken Grotesk Variable", system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+  --font-display: "Dela Gothic One", "Hanken Grotesk Variable", system-ui, sans-serif;
+  --shadow-lift: 0 18px 40px -16px rgb(var(--ink) / 0.45);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  color-scheme: light;
+  font-family: var(--font-sans);
+  color: rgb(var(--fg));
+  background: rgb(var(--bg));
+  -webkit-tap-highlight-color: transparent;
+}
+.store-root [data-section="read"]    { --accent: 222 0 52;  --accentsoft: 252 232 237; --paper: 246 224 230; }
+.store-root [data-section="manga"]   { --accent: 38 70 220; --accentsoft: 228 234 253; --paper: 222 231 248; }
+.store-root [data-section="figures"] { --accent: 176 104 0; --accentsoft: 250 240 214; --paper: 245 236 206; }
+.store-root [data-section="collabs"] { --accent: 226 64 42; --accentsoft: 251 228 222; --paper: 244 232 214; }
+.store-root [data-section="shelf"]   { --accent: 0 135 90;  --accentsoft: 222 243 232; --paper: 219 238 226; }
+.store-root [data-section="account"] { --accent: 24 21 34;  --accentsoft: 232 231 240; --paper: 230 229 239; }
+.store-root[data-section="partner"], .store-root [data-section="partner"] { --accent: 214 0 50; --accentsoft: 252 232 237; --paper: 244 239 229; --bg: 247 246 242; }
+@media (prefers-color-scheme: dark) {
+  .store-root { --bg: 17 15 25; --card: 28 25 39; --fg: 238 236 246; --ink: 4 3 10; --muted: 156 152 178; --line: 48 45 66; color-scheme: dark; }
+  .store-root [data-section="read"]    { --accent: 255 78 112; --accentsoft: 62 24 38; --paper: 42 24 34; }
+  .store-root [data-section="manga"]   { --accent: 122 146 255; --accentsoft: 30 36 76; --paper: 24 30 56; }
+  .store-root [data-section="figures"] { --accent: 245 182 66;  --accentsoft: 62 46 16; --paper: 44 36 18; }
+  .store-root [data-section="collabs"] { --accent: 255 120 96;  --accentsoft: 64 30 24; --paper: 44 28 22; }
+  .store-root [data-section="shelf"]   { --accent: 72 204 146;  --accentsoft: 18 54 40; --paper: 18 40 32; }
+  .store-root [data-section="account"] { --accent: 228 226 240; --accentsoft: 46 42 62; --paper: 34 31 48; }
+  .store-root[data-section="partner"], .store-root [data-section="partner"] { --accent: 255 78 112; --accentsoft: 62 24 38; --paper: 36 32 30; --bg: 19 17 24; }
+}
+/* Custom properties built from other variables resolve where they're declared, so re-declare
+   the colour mappings wherever a section changes the underlying values. */
+.store-root, .store-root [data-section] {
+  --color-bg: rgb(var(--bg)); --color-card: rgb(var(--card)); --color-fg: rgb(var(--fg)); --color-ink: rgb(var(--ink));
+  --color-muted: rgb(var(--muted)); --color-line: rgb(var(--line)); --color-ok: rgb(var(--ok)); --color-warn: rgb(var(--warn));
+  --color-bad: rgb(var(--bad)); --color-accent: rgb(var(--accent)); --color-accentsoft: rgb(var(--accentsoft)); --color-paper: rgb(var(--paper));
+  --shadow-panel: 0 1px 2px rgb(var(--ink) / 0.06), 0 4px 10px -4px rgb(var(--ink) / 0.10), 0 22px 44px -22px rgb(var(--ink) / 0.38);
+  --shadow-panel-sm: 0 1px 2px rgb(var(--ink) / 0.10), 0 8px 18px -10px rgb(var(--ink) / 0.40);
+  --shadow-lift: 0 18px 40px -16px rgb(var(--ink) / 0.45);
+}
+@layer base {
+  /* Tailwind 3 defaults the store was written against. */
+  .store-root *, .store-root ::before, .store-root ::after { border-color: rgb(var(--line)); }
+  .store-root button:not(:disabled), .store-root [role="button"]:not(:disabled) { cursor: pointer; }
+  .store-root input::placeholder, .store-root textarea::placeholder { color: rgb(var(--muted) / 0.8); }
+}
+.store-root ::selection { background: rgb(var(--accent)); color: white; }
+.store-root :focus-visible { outline: 2px solid rgb(var(--accent)); outline-offset: 3px; border-radius: 10px; }
+
+/* Torii's fan app is a phone app: one phone-width column, even on a computer. */
+.store-app { min-height: 100dvh; }
+@media (min-width: 640px) { .store-app { background: rgb(var(--ink)); } }
+.app-col { width: 100%; max-width: var(--app-w); margin-inline: auto; min-height: 100dvh; background: rgb(var(--bg)); container-type: inline-size; position: relative; }
+.app-fixed { position: fixed; left: 50%; transform: translateX(-50%); width: 100%; max-width: var(--app-w); }
+@media (min-width: 640px) { .app-col { box-shadow: 0 0 0 1px rgb(255 255 255 / 0.06), 0 30px 80px -20px rgb(0 0 0 / 0.6); } }
+.partner-root { min-height: 100dvh; background: rgb(var(--bg)); color: rgb(var(--fg)); }
+
+.store-root .no-scrollbar::-webkit-scrollbar { display: none; }
+.store-root .no-scrollbar { scrollbar-width: none; }
+/* Screentone texture, kept faint. */
+.store-root .tone { background-image: radial-gradient(rgb(var(--ink) / 0.10) 1px, transparent 1.2px); background-size: 7px 7px; }
+.store-root .paper-band { background: rgb(var(--paper)); }
+/* Bands run the full width of the phone column. */
+.store-root .bleed { margin-inline: -1rem; padding-inline: 1rem; }
+.store-root .row-lazy { content-visibility: auto; contain-intrinsic-size: auto 280px; }
+.store-root .rv-line { padding-bottom: 0.08em; margin-bottom: -0.08em; }
+/* Hero headline is revealed by GSAP; if scripts never run, it appears anyway. */
+@keyframes show { to { visibility: visible; } }
+.store-root .js-hide { visibility: hidden; animation: show 0s 1.6s forwards; }
+.store-root [data-count] { visibility: hidden; animation: show 0s 1.6s forwards; }
+.store-root .jp { font-family: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Noto Sans JP", "Yu Gothic", "Meiryo", sans-serif; }
+
+@layer components {
+  .store-root .btn, .store-root .btn-primary, .store-root .btn-ink, .store-root .btn-ghost {
+    @apply inline-flex min-h-[46px] select-none items-center justify-center gap-2 rounded-full px-5 text-[15px] font-semibold tracking-[-0.01em] transition duration-300 ease-out active:scale-[.97] disabled:pointer-events-none disabled:opacity-45;
+  }
+  .store-root .btn-primary { @apply bg-accent text-white shadow-panel-sm hover:brightness-110 dark:text-[rgb(17,15,25)]; }
+  .store-root .btn-ink { @apply bg-ink text-white shadow-panel-sm hover:bg-ink/85 dark:bg-fg dark:text-bg dark:hover:bg-fg/85; }
+  .store-root .btn-ghost { @apply border border-line bg-card text-fg hover:border-fg/30 hover:bg-card/80; }
+  .store-root .card { @apply rounded-panel border border-line bg-card transition-colors duration-300; }
+  .store-root .panel { @apply rounded-panel border border-line bg-card shadow-panel dark:shadow-none; }
+  .store-root .chip, .store-root .chip-on { @apply inline-flex min-h-[36px] items-center whitespace-nowrap rounded-full border border-line bg-card px-3.5 text-[13px] font-medium text-fg transition duration-300 ease-out hover:border-fg/30; }
+  .store-root .chip-on { @apply border-fg bg-fg text-bg hover:border-fg; }
+  .store-root .input { @apply min-h-[46px] w-full rounded-xl border border-line bg-card px-3.5 text-[15px] outline-none transition duration-200 placeholder:text-muted/70 focus:border-fg/50 focus:ring-4 focus:ring-fg/5; }
+  .store-root .h-title { @apply font-display text-[28px] leading-[1.05] tracking-[-0.01em]; }
+  .store-root .h-section { @apply text-[20px] font-bold leading-tight tracking-[-0.025em]; }
+  .store-root .label { @apply text-[12.5px] font-semibold text-muted; }
+  .store-root .price { @apply font-bold tabular-nums tracking-[-0.03em]; }
+  .store-root .pill { @apply inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-0.5 text-[12px] font-semibold ring-1 ring-inset; }
+  .store-root .field-label { @apply mb-1.5 block text-[13px] font-semibold; }
+  .store-root .field-hint { @apply mt-1 block text-[12.5px] text-muted; }
+  .store-root .skeleton { background: linear-gradient(90deg, rgb(var(--line) / 0.7) 25%, rgb(var(--card)) 37%, rgb(var(--line) / 0.7) 63%); background-size: 400% 100%; @apply animate-shimmer; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .store-root .js-hide, .store-root [data-count] { visibility: visible; }
 }

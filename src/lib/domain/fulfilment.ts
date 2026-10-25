@@ -7,6 +7,7 @@ import { nowIso } from "../util";
 import { audit, type User } from "./core";
 import { getVersion, requireCampaign } from "./campaigns";
 import { campaignProgress, type Order } from "./orders";
+import { issueCodesForOrder } from "./authenticity";
 
 function assertOperator(actor: User) {
   if (actor.role !== "operator") throw forbidden("Only a Torii operator can manage production and fulfilment");
@@ -51,8 +52,12 @@ export function markShipped(input: { campaignId: string; actor: User; orderIds?:
   return tx(() => {
     const ts = nowIso();
     const orders = selectOrders(c.id, ["paid", "in_production"], input.orderIds);
-    for (const o of orders) run("UPDATE orders SET status = 'shipped', shipped_at = ? WHERE id = ? AND status IN ('paid','in_production')", ts, o.id);
-    if (orders.length) audit(input.actor.id, "orders.shipped", "campaign", c.id, { count: orders.length });
+    for (const o of orders) {
+      run("UPDATE orders SET status = 'shipped', shipped_at = ? WHERE id = ? AND status IN ('paid','in_production')", ts, o.id);
+      // Each unit leaves with its own authenticity tag.
+      issueCodesForOrder(o);
+    }
+    if (orders.length) audit(input.actor.id, "orders.shipped", "campaign", c.id, { count: orders.length, tagsIssued: orders.reduce((s, o) => s + o.quantity, 0) });
     return { shipped: orders.length };
   });
 }

@@ -1,0 +1,270 @@
+/* ===========================================================================
+   The new look, after heyclicky.com and folk.com: a soft grey canvas, Inter set
+   tight, glossy "gel" pill buttons, macOS-window cards, chat bubbles, stickers.
+
+   Every rule is scoped to html[data-ui="new"] (set from the torii_ui cookie, see
+   src/lib/ui-mode.ts), so the classic look is untouched when it's switched off.
+   The fan app (.store-app) is excluded throughout; the Partner Portal
+   (.partner-root) is restyled at the bottom of this file.
+
+   Rules here are unlayered on purpose: they win over Tailwind's layered
+   utilities, which is how classic markup takes on the new look.
+   =========================================================================== */
+
+[data-ui="new"] {
+  --color-paper: #f5f5f5;
+  --color-card: #ffffff;
+  --color-ivory: #eeeff2;
+  --color-sand: #e5e6ea;
+  --color-sand-2: #cdd0d7;
+  --color-ink: #0c0c0f;
+  --color-ink-2: #45474e;
+  --color-moss: #74767d;
+  --color-pine: #1d3f9e;
+  --color-pine-2: #2a52b8;
+  --color-pine-soft: #e8eefc;
+  /* The accent becomes gel blue; the torii red stays on the mark and stickers. */
+  --color-vermilion: #2d5bd2;
+  --color-vermilion-2: #1d3f9e;
+  --color-vermilion-soft: #e7eefd;
+  --color-indigo: #1b2a52;
+  --color-indigo-soft: #e9edf7;
+  --color-info: #2d5bd2;
+  --color-info-soft: #e7eefd;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-averia), Georgia, "Times New Roman", serif;
+
+  --radius-card: 20px;
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 12px rgb(0 0 0 / 0.05);
+  --shadow-lift: 0 1px 2px rgb(0 0 0 / 0.05), 0 10px 24px rgb(0 0 0 / 0.12);
+
+  --torii-red: #e8402f;
+  --gel-blue: linear-gradient(180deg, #5582e6 0%, #2f5bcb 50%, #1f43a6 100%);
+  --gel-aqua: linear-gradient(180deg, #edf4ff 0%, #d6e7ff 18%, #a2c7ff 50%, #99cbf8 80%, #a2d2f7 100%);
+  --gel-white: linear-gradient(180deg, #ffffff 0%, #f7f7f9 55%, #ececf0 100%);
+  --gel-black: linear-gradient(180deg, #34343b 0%, #16161a 55%, #0b0b0d 100%);
+  --dots: radial-gradient(rgb(0 0 0 / 0.1) 1px, transparent 1.4px);
+}
+
+[data-ui="new"] body {
+  background-color: #f5f5f5;
+  background-image: none;
+  font-feature-settings: "cv11", "ss01";
+}
+
+[data-ui="new"] :where(h1, h2, h3, .font-display):not(:where(.store-root, .store-root *)) {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+}
+
+[data-ui="new"] .font-serif:not(:where(.store-root *)) {
+  font-family: var(--font-serif);
+  font-style: normal;
+  font-weight: 400;
+  letter-spacing: -0.03em;
+}
+
+[data-ui="new"] .label:not(:where(.store-root, .store-root *)) {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  text-transform: none;
+}
+
+[data-ui="new"] ::selection { background: #2d5bd2; color: #fff; }
+[data-ui="new"] :focus-visible:not(:where(.store-root *)) { outline: 2px solid #2d5bd2; outline-offset: 2px; border-radius: 8px; }
+
+/* Classic textures give way to the dotted canvas. */
+[data-ui="new"] :is(.grid-paper, .seigaiha, .shippo, .washi):not(:where(.store-root *)) {
+  background-color: transparent;
+  background-image: var(--dots);
+  background-size: 22px 22px;
+}
+[data-ui="new"] :is(.grid-paper-dark, .seigaiha-ink, .shippo-dark) {
+  background-image: radial-gradient(rgb(255 255 255 / 0.1) 1px, transparent 1.4px);
+  background-size: 22px 22px;
+}
+[data-ui="new"] .seigaiha-red,
+[data-ui="new"] .seigaiha-indigo {
+  background-image: radial-gradient(rgb(255 255 255 / 0.16) 1px, transparent 1.4px);
+  background-size: 22px 22px;
+}
+[data-ui="new"] .grain::after { display: none; }
+
+/* --- Gel buttons ---------------------------------------------------------- */
+[data-ui="new"] :is(.gel, .ui-btn) {
+  position: relative;
+  isolation: isolate;
+  border-radius: 999px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+}
+[data-ui="new"] :is(.gel, .ui-btn):active { transform: translateY(1px) scale(0.99); }
+/* the wet highlight across the top half */
+[data-ui="new"] :is(.gel-blue, .gel-aqua, .gel-white, .gel-black, .ui-btn-primary, .ui-btn-accent, .ui-btn-secondary, .ui-btn-danger)::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 1px 7px 52% 7px;
+  border-radius: 999px;
+  background: linear-gradient(rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.04));
+  pointer-events: none;
+}
+[data-ui="new"] :is(.gel-blue, .ui-btn-primary) {
+  color: #fff;
+  background: var(--gel-blue);
+  border: 1px solid #1a3a92;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 1px 1px rgb(24 61 154 / 0.2), 0 7px 14px -4px rgb(24 61 154 / 0.45);
+  text-shadow: 0 1px 0 rgb(0 0 0 / 0.18);
+}
+[data-ui="new"] :is(.gel-aqua, .ui-btn-accent) {
+  color: #07111f;
+  background: var(--gel-aqua);
+  border: 1px solid #2a2f9e;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.8), 0 10px 24px rgb(0 0 0 / 0.12);
+}
+[data-ui="new"] :is(.gel-white, .ui-btn-secondary, .ui-btn-danger) {
+  color: #0c0c0f;
+  background: var(--gel-white);
+  border: 1px solid rgb(0 0 0 / 0.28);
+  box-shadow: inset 0 1px 0 #fff, 0 6px 16px -6px rgb(0 0 0 / 0.18);
+}
+[data-ui="new"] .ui-btn-danger { color: var(--color-fail); }
+[data-ui="new"] .gel-black {
+  color: #fff;
+  background: var(--gel-black);
+  border: 1px solid #000;
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 8px 18px -6px rgb(0 0 0 / 0.45);
+}
+[data-ui="new"] .gel-black::before { background: linear-gradient(rgb(255 255 255 / 0.22), rgb(255 255 255 / 0)); }
+[data-ui="new"] :is(.gel-blue, .gel-aqua, .gel-white, .gel-black, .ui-btn-primary, .ui-btn-accent, .ui-btn-secondary, .ui-btn-danger):hover { filter: brightness(1.05) saturate(1.05); }
+[data-ui="new"] .ui-btn-ghost { color: var(--color-ink-2); }
+[data-ui="new"] .ui-btn-ghost:hover { background: #fff; color: var(--color-ink); box-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 4px 10px rgb(0 0 0 / 0.05); }
+
+/* --- Shared workspace primitives ------------------------------------------- */
+[data-ui="new"] .ui-card { border-color: rgb(0 0 0 / 0.06); box-shadow: var(--shadow-card); }
+[data-ui="new"] .ui-badge { border-radius: 999px; padding: 4px 9px; }
+[data-ui="new"] .ui-notice { border-radius: 16px; border-color: rgb(0 0 0 / 0.06); box-shadow: var(--shadow-card); }
+[data-ui="new"] .ui-empty { border-style: dashed; background-color: #fff; }
+[data-ui="new"] .ui-input { border-radius: 12px; border-color: rgb(0 0 0 / 0.14); box-shadow: inset 0 1px 2px rgb(0 0 0 / 0.04); }
+[data-ui="new"] .ui-input:focus { border-color: #2d5bd2; box-shadow: 0 0 0 4px rgb(45 91 210 / 0.14); }
+[data-ui="new"] .ui-meter { background: #e9ebf0; box-shadow: inset 0 1px 1px rgb(0 0 0 / 0.06); }
+[data-ui="new"] .ui-meter-fill.bg-vermilion { background: linear-gradient(180deg, #6b93ec, #2d5bd2); }
+[data-ui="new"] .ui-meter-fill.bg-ok { background: linear-gradient(180deg, #4fbf8a, #1d7552); }
+[data-ui="new"] .ui-stage-on { background: var(--gel-blue); box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.3), 0 3px 8px -2px rgb(24 61 154 / 0.45); }
+[data-ui="new"] .ui-pagehead { position: relative; }
+[data-ui="new"] .ui-pagehead-bar { border-bottom-style: dashed; border-color: rgb(0 0 0 / 0.14); }
+/* a dotted wash behind every page title, fading out */
+[data-ui="new"] .ui-pagehead::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -48px calc(50% - 50vw) -24px;
+  background-image: var(--dots);
+  background-size: 22px 22px;
+  -webkit-mask-image: linear-gradient(black, transparent);
+  mask-image: linear-gradient(black, transparent);
+  pointer-events: none;
+}
+
+/* --- New-look building blocks (src/components/v2) -------------------------- */
+[data-ui="new"] .dots { background-image: var(--dots); background-size: 22px 22px; }
+
+/* macOS window */
+.win { background: #fff; border-radius: 14px; border: 1px solid rgb(0 0 0 / 0.14); box-shadow: 0 1px 2px rgb(0 0 0 / 0.05), 0 22px 44px -18px rgb(0 0 0 / 0.22); overflow: hidden; }
+.win-bar { position: relative; display: flex; align-items: center; height: 30px; padding-inline: 11px; gap: 7px; border-bottom: 1px solid rgb(0 0 0 / 0.08); background: linear-gradient(#f7f7f8, #ebebee); }
+.win-bar > i { width: 11px; height: 11px; border-radius: 999px; box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 0.18); }
+.win-bar > i:nth-child(1) { background: #ff5f57; }
+.win-bar > i:nth-child(2) { background: #febc2e; }
+.win-bar > i:nth-child(3) { background: #28c840; }
+.win-bar > span { position: absolute; inset-inline: 70px; text-align: center; font-size: 12px; color: rgb(0 0 0 / 0.5); letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.win-bar[data-tint="blue"] { background: linear-gradient(#e3ecfb, #cddcf5); }
+.win-bar[data-tint="green"] { background: linear-gradient(#e2f2e4, #cde6d2); }
+.win-bar[data-tint="yellow"] { background: linear-gradient(#fbf3dc, #f1e3b8); }
+.win-bar[data-tint="pink"] { background: linear-gradient(#fbe6ec, #f2ccd8); }
+
+/* folk's soft lavender card */
+.soft-card { background: linear-gradient(170deg, #f5f8ff 0%, #eaf0fe 100%); border-radius: 28px; }
+
+/* chat bubbles */
+.bubble { display: inline-block; max-width: 30ch; padding: 7px 12px 8px; border-radius: 18px; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-inter), sans-serif; font-size: 14.5px; line-height: 1.3; letter-spacing: -0.01em; }
+.bubble-me { color: #07131f; background: linear-gradient(180deg, #e6efff 0%, #c4d9ff 100%); border: 1px solid #6b97ea; border-bottom-right-radius: 5px; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.85), 0 6px 14px -8px rgb(36 84 190 / 0.5); }
+.bubble-them { color: #0c0c0f; background: #fff; border: 1px solid rgb(0 0 0 / 0.1); border-bottom-left-radius: 5px; box-shadow: 0 4px 12px -6px rgb(0 0 0 / 0.16); }
+
+/* die-cut sticker: a white outline that follows the shape, and a soft shadow */
+.sticker { filter: drop-shadow(2px 0 0 #fff) drop-shadow(-2px 0 0 #fff) drop-shadow(0 2px 0 #fff) drop-shadow(0 -2px 0 #fff) drop-shadow(0 14px 18px rgb(0 0 0 / 0.16)); }
+
+/* sky behind the role doors */
+.sky {
+  background:
+    radial-gradient(38% 22% at 18% 22%, rgb(255 255 255 / 0.85), transparent 70%),
+    radial-gradient(30% 18% at 70% 14%, rgb(255 255 255 / 0.7), transparent 70%),
+    radial-gradient(42% 24% at 86% 58%, rgb(255 255 255 / 0.75), transparent 70%),
+    radial-gradient(36% 20% at 10% 78%, rgb(255 255 255 / 0.7), transparent 70%),
+    radial-gradient(30% 16% at 52% 92%, rgb(255 255 255 / 0.6), transparent 70%),
+    linear-gradient(180deg, #3f7fdc 0%, #6aa2ea 45%, #a8cbf3 100%);
+}
+
+/* the giant faded wordmark at the foot of every page */
+.wordmark-fade { background: linear-gradient(180deg, #dbe3f4 0%, #f5f5f5 92%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+
+@keyframes v2-float {
+  0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); }
+  50% { transform: translateY(-8px) rotate(var(--r, 0deg)); }
+}
+.v2-float { animation: v2-float var(--d, 6s) ease-in-out infinite; animation-delay: var(--delay, 0s); }
+
+/* FAQ disclosure */
+.faq summary { list-style: none; cursor: pointer; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq[open] .faq-plus { transform: rotate(45deg); }
+
+/* ===========================================================================
+   Partner Portal in the new look. It's a .store-root surface, so it's
+   restyled by re-pointing the store's own variables.
+   =========================================================================== */
+[data-ui="new"] .partner-root,
+[data-ui="new"] .partner-root [data-section] {
+  --bg: 245 245 245; --card: 255 255 255; --fg: 12 12 15; --ink: 12 12 15; --muted: 116 118 125; --line: 229 230 234;
+  --accent: 45 91 210; --accentsoft: 231 238 253; --paper: 236 241 254;
+  --font-sans: var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-inter), system-ui, sans-serif;
+  color-scheme: light;
+}
+[data-ui="new"] .partner-root { font-feature-settings: "cv11", "ss01"; letter-spacing: -0.01em; }
+[data-ui="new"] .partner-root :is(h1, h2, h3, .font-display) { font-weight: 500; letter-spacing: -0.035em; }
+[data-ui="new"] .partner-root h1.font-display { font-weight: 500; }
+[data-ui="new"] .partner-root :is(.btn-primary, .btn-ink, .btn-ghost) { position: relative; isolation: isolate; font-weight: 500; letter-spacing: -0.02em; }
+[data-ui="new"] .partner-root :is(.btn-primary, .btn-ink, .btn-ghost)::before {
+  content: ""; position: absolute; z-index: -1; inset: 1px 7px 52% 7px; border-radius: 999px;
+  background: linear-gradient(rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.04)); pointer-events: none;
+}
+[data-ui="new"] .partner-root .btn-primary { color: #fff; background: var(--gel-blue); border: 1px solid #1a3a92; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.35), 0 7px 14px -4px rgb(24 61 154 / 0.45); text-shadow: 0 1px 0 rgb(0 0 0 / 0.18); }
+[data-ui="new"] .partner-root .btn-ink { color: #fff; background: var(--gel-black); border: 1px solid #000; box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.18), 0 8px 18px -6px rgb(0 0 0 / 0.45); }
+[data-ui="new"] .partner-root .btn-ink::before { background: linear-gradient(rgb(255 255 255 / 0.22), rgb(255 255 255 / 0)); }
+[data-ui="new"] .partner-root .btn-ghost { color: #0c0c0f; background: var(--gel-white); border: 1px solid rgb(0 0 0 / 0.24); box-shadow: inset 0 1px 0 #fff, 0 6px 16px -6px rgb(0 0 0 / 0.18); }
+[data-ui="new"] .partner-root :is(.card, .panel) { border-radius: 20px; border-color: rgb(0 0 0 / 0.06); box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 4px 12px rgb(0 0 0 / 0.05); }
+[data-ui="new"] .partner-root .input { border-radius: 12px; }
+[data-ui="new"] .partner-root .input:focus { border-color: #2d5bd2; box-shadow: 0 0 0 4px rgb(45 91 210 / 0.14); }
+[data-ui="new"] .partner-root .chip-on { background: var(--gel-blue); border-color: #1a3a92; color: #fff; }
+[data-ui="new"] .partner-root .paper-band { background: linear-gradient(170deg, #f5f8ff 0%, #eaf0fe 100%); }
+[data-ui="new"] .partner-root :focus-visible { outline-color: #2d5bd2; }
+
+/* --- Classic pages, finishing touches --------------------------------------- */
+/* Full-width dark heroes (passport, fan pulse) become a deep blue sky. */
+[data-ui="new"] [data-dark-band] {
+  background-color: #1f43a6;
+  background-image:
+    radial-gradient(40% 32% at 86% 18%, rgb(255 255 255 / 0.16), transparent 70%),
+    radial-gradient(34% 26% at 8% 92%, rgb(255 255 255 / 0.12), transparent 70%),
+    linear-gradient(180deg, #1b3b96 0%, #2a56c6 62%, #3c70dc 100%);
+}
+/* Ink panels and chips get a glossy black finish. */
+[data-ui="new"] main .bg-ink:not([data-dark-band], :where(.store-root, .store-root *)) { background-image: linear-gradient(180deg, #2b2b32 0%, #0c0c0f 62%); }
+/* Warm paper backdrops behind product previews cool down to the new grey. */
+[data-ui="new"] .bg-\[\#ECEBE5\] { background-color: #eceef2; }

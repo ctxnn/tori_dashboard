@@ -1,118 +1,43 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono, Instrument_Serif } from "next/font/google";
-import Link from "next/link";
+import { Averia_Serif_Libre, Geist, Geist_Mono, Inter, Instrument_Serif } from "next/font/google";
+import "@fontsource/dela-gothic-one/400.css";
+import "@fontsource-variable/hanken-grotesk";
 import "./globals.css";
-import { currentUser } from "@/lib/auth";
+import "./v2.css";
 import { ensureSeeded } from "@/lib/seed";
-import { ROLE_LABEL } from "@/lib/labels";
-import { ToriiMark } from "@/components/ui";
-import { NavLinks } from "@/components/nav-links";
-import { HeaderShell } from "@/components/header-shell";
+import { uiMode } from "@/lib/ui-mode";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-geist", display: "swap" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
 const instrument = Instrument_Serif({ subsets: ["latin"], weight: "400", style: ["normal", "italic"], variable: "--font-instrument", display: "swap" });
+// The new look: Inter for everything, Averia Serif Libre for the friendly accent words.
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+const averia = Averia_Serif_Libre({ subsets: ["latin"], weight: ["400", "700"], variable: "--font-averia", display: "swap" });
 
 export const metadata: Metadata = {
-  title: { default: "Torii — official collaborations, made small", template: "%s · Torii" },
-  description: "A shared workspace where Japanese IP owners and Indian creators prepare, approve, launch and track official merchandise collaborations.",
+  title: { default: "Torii — official Japanese IP in India, from fandom to revenue", template: "%s · Torii" },
+  description:
+    "Torii brings official Japanese manga and merchandise to Indian fans, and gives Japanese IP owners and Indian creators one shared workspace to approve, launch and track official collaborations.",
+  icons: { icon: "/icon-192.png", apple: "/icon-192.png" },
 };
 
-export const viewport: Viewport = { themeColor: "#f5f4ef", width: "device-width", initialScale: 1 };
+export const viewport: Viewport = { themeColor: "#f5f4ef", width: "device-width", initialScale: 1, viewportFit: "cover" };
 
 export const dynamic = "force-dynamic";
 
-const NAV: Record<string, { href: string; label: string }[]> = {
-  owner: [
-    { href: "/owner", label: "Overview" },
-    { href: "/owner/kit", label: "Asset kit" },
-    { href: "/campaigns", label: "Campaigns" },
-    { href: "/proof", label: "Proof" },
-    { href: "/how-it-works", label: "How it works" },
-  ],
-  creator: [
-    { href: "/creator", label: "Studio" },
-    { href: "/creator/kit", label: "Kit & rules" },
-    { href: "/campaigns", label: "Campaigns" },
-    { href: "/proof", label: "Proof" },
-    { href: "/how-it-works", label: "How it works" },
-  ],
-  fan: [
-    { href: "/campaigns", label: "Campaigns" },
-    { href: "/fan", label: "My orders" },
-    { href: "/proof", label: "Proof" },
-    { href: "/how-it-works", label: "How it works" },
-  ],
-  operator: [
-    { href: "/ops", label: "Operations" },
-    { href: "/ops/payments", label: "Payment events" },
-    { href: "/ops/settings", label: "Terms" },
-    { href: "/campaigns", label: "Campaigns" },
-    { href: "/proof", label: "Proof" },
-    { href: "/how-it-works", label: "How it works" },
-  ],
-};
-
-const ROLE_DOT: Record<string, string> = { owner: "bg-vermilion", creator: "bg-pine", fan: "bg-gold", operator: "bg-info" };
-
+/**
+ * Three surfaces share this root, each with its own layout:
+ *  (studio)  the collaboration workspace for IP owners, creators and Torii operations
+ *  (fan)     the phone-first fan app: Read, Manga, Figures, Collabs, Shelf
+ *  (partner) the Partner Portal where Japanese publishers bring their series
+ * data-ui picks the workspace and portal look (see src/lib/ui-mode.ts); the fan app ignores it.
+ */
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   await ensureSeeded();
-  const user = await currentUser();
-  const links = user ? NAV[user.role] : [{ href: "/campaigns", label: "Campaigns" }, { href: "/proof", label: "Proof" }, { href: "/how-it-works", label: "How it works" }];
+  const ui = await uiMode();
   return (
-    <html lang="en" className={`${geist.variable} ${geistMono.variable} ${instrument.variable}`}>
-      <body className="flex min-h-dvh flex-col">
-        <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-lg focus:bg-ink focus:px-4 focus:py-2 focus:text-paper">
-          Skip to content
-        </a>
-        <div className="bg-ink text-paper/70">
-          <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-1.5 font-mono text-[10.5px] uppercase tracking-[0.08em] sm:px-6">
-            <span className="truncate">
-              <span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-vermilion align-middle" aria-hidden />
-              Demo build · fictional property, partners &amp; terms · test-mode payments
-            </span>
-            <Link href="/#reset" className="shrink-0 text-paper/90 underline decoration-paper/30 underline-offset-2 hover:decoration-paper">
-              Reset demo
-            </Link>
-          </div>
-        </div>
-        <HeaderShell>
-          <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 sm:gap-8 sm:px-6">
-            <Link href="/" className="flex shrink-0 items-center gap-2.5 text-ink transition-colors group-data-[tone=dark]/header:text-paper" aria-label="Torii home">
-              <ToriiMark className="h-[22px] w-[22px] text-vermilion" />
-              <span className="text-[17px] font-semibold tracking-[-0.03em]">Torii</span>
-            </Link>
-            <NavLinks links={links} />
-            <Link
-              href="/switch"
-              className="group ml-auto flex shrink-0 items-center gap-2.5 rounded-lg py-1 pl-1 pr-2 text-sm transition-colors hover:bg-ivory group-data-[tone=dark]/header:hover:bg-paper/10"
-              aria-label={user ? `Signed in as ${user.name}, ${ROLE_LABEL[user.role]}. Switch role` : "Choose a demo role"}
-            >
-              <span className="relative grid h-8 w-8 place-items-center rounded-full bg-ink text-[11px] font-semibold text-paper group-data-[tone=dark]/header:bg-paper group-data-[tone=dark]/header:text-ink">
-                {user ? user.name.split(" ").map((p) => p[0]).join("") : "?"}
-                {user && <span className={`absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-paper group-data-[tone=dark]/header:border-ink ${ROLE_DOT[user.role]}`} aria-hidden />}
-              </span>
-              <span className="hidden leading-tight sm:block">
-                <span className="block text-[13px] font-medium text-ink group-data-[tone=dark]/header:text-paper">{user ? user.name : "Choose a role"}</span>
-                <span className="label block text-[9.5px] text-moss group-data-[tone=dark]/header:text-paper/50">{user ? ROLE_LABEL[user.role] : "Demo access"} · switch</span>
-              </span>
-            </Link>
-          </div>
-        </HeaderShell>
-        <main id="main" className="mx-auto w-full max-w-7xl flex-1 px-4 py-10 sm:px-6 sm:py-12">
-          {children}
-        </main>
-        <footer className="border-t border-sand">
-          <div className="mx-auto grid max-w-7xl gap-4 px-4 py-8 text-xs text-moss sm:grid-cols-[auto_1fr] sm:gap-10 sm:px-6">
-            <div className="flex items-center gap-2 text-ink">
-              <ToriiMark className="h-4 w-4 text-vermilion" />
-              <span className="font-semibold">Torii</span>
-              <span className="label text-moss">Prototype · Thapar Japan Hackathon · JETRO</span>
-            </div>
-            <p className="sm:text-right">Rule checks enforce declared kit rules. They don’t establish copyright ownership or replace human judgement.</p>
-          </div>
-        </footer>
-      </body>
+    <html lang="en" data-ui={ui} className={`${geist.variable} ${geistMono.variable} ${instrument.variable} ${inter.variable} ${averia.variable}`}>
+      <body className="flex min-h-dvh flex-col">{children}</body>
     </html>
   );
 }

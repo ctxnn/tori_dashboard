@@ -8,6 +8,8 @@
     "build": "next build",
     "start": "next start -p ${PORT:-3000}",
     "seed": "node --experimental-strip-types scripts/seed.ts",
+    "store:seed": "tsx scripts/store/seed.ts",
+    "store:import": "node scripts/store/import-anilist.mjs && npm run store:seed",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
     "record:demos": "node scripts/record/record-demos.mjs",
@@ -18,18 +20,29 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.135.0",
+    "@fontsource-variable/hanken-grotesk": "^5.2.6",
+    "@fontsource/dela-gothic-one": "^5.2.6",
+    "@gsap/react": "^2.1.2",
+    "fflate": "^0.8.2",
+    "gsap": "^3.13.0",
+    "html5-qrcode": "^2.3.8",
     "next": "^16.4.2",
+    "qrcode": "^1.5.4",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
+    "recharts": "^2.15.4",
+    "server-only": "^0.0.1",
     "zod": "^4.6.7"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^24.19.2",
+    "@types/qrcode": "^1.5.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "playwright": "^1.64.1",
     "tailwindcss": "^4.3.3",
+    "tsx": "^4.19.2",
     "typescript": "^5.9.3",
     "vitest": "^5.0.5"
   }

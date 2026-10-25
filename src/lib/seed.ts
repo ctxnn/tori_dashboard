@@ -18,6 +18,9 @@ import { createOrder } from "./domain/orders";
 import { simulatorComplete, simulatorResend } from "./domain/payments/simulator";
 import { requestRefund } from "./domain/refunds";
 import { markDelivered, markShipped, releaseProduction } from "./domain/fulfilment";
+import { recordInterest } from "./domain/audience";
+import { follow } from "./domain/community";
+import { AGE_BANDS, LANGUAGES, PRICE_BANDS, WANTS, WATCH_CHANNELS } from "./pulse";
 import type { KitRules } from "./kit-rules";
 
 const DAY = 86_400_000;
@@ -47,7 +50,17 @@ function prng(seed: number) {
 
 const FIRST = ["Aanya", "Vihaan", "Ishita", "Arjun", "Saanvi", "Kabir", "Diya", "Reyansh", "Anika", "Advait", "Myra", "Rohan", "Tara", "Neel", "Kiara", "Dev", "Zoya", "Aditya", "Riya", "Om", "Navya", "Yash", "Sara", "Ira", "Kunal", "Mehak", "Parth", "Tanvi", "Laksh", "Nitya"];
 const LAST = ["S", "K", "M", "R", "P", "D", "G", "B", "N", "T", "J", "V"];
-const CITIES = ["Delhi", "Patiala", "Chandigarh", "Mumbai", "Pune", "Bengaluru", "Kolkata", "Hyderabad", "Chennai", "Jaipur", "Lucknow", "Guwahati", "Kochi", "Indore"];
+// Where each campaign's buyers live: its creator's own reach, not the whole country.
+const FIRST_FLIGHT_CITIES = ["Delhi", "Delhi", "Delhi", "Delhi", "Delhi", "Chandigarh", "Patiala", "Jaipur", "Lucknow", "Bengaluru", "Mumbai", "Pune"];
+const MONSOON_CITIES = ["Mumbai", "Mumbai", "Mumbai", "Pune", "Pune", "Bengaluru", "Ahmedabad"];
+const MIDNIGHT_CITIES = ["Patiala", "Patiala", "Patiala", "Chandigarh", "Chandigarh", "Delhi", "Delhi", "Hyderabad", "Kolkata", "Chennai"];
+
+/** Stable pick from a list by name, so the same fan reads as one person. */
+function pickBy(name: string, list: string[]): string {
+  let h = 0;
+  for (const ch of name) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  return list[h % list.length];
+}
 
 const USERS: User[] = [
   { id: "usr_haruka", name: "Haruka Sato", email: "haruka@kumolantern.example", role: "owner", org: "Kumo Lantern Studio", title: "Licensing lead", bio: "Required approver for Sky Courier merchandise." },
@@ -67,22 +80,42 @@ function content(over: Partial<ContentInput> & { design: ContentInput["design"];
   };
 }
 
-async function buyMany(c: Campaign, n: { orders: number; fromDay: number; toDay: number; rand: () => number; sizes: string[]; maxQty?: number; fan?: User; failEvery?: number; unpaid?: number }) {
-  const refs: { orderId: string; ref: string }[] = [];
+interface Buyer {
+  name: string;
+  email: string;
+  city: string;
+}
+
+/**
+ * `returning` brings back earlier backers: a share of orders come from people who
+ * bought a previous run. It draws from its own PRNG so the rest of the history
+ * (and every total derived from it) stays exactly the same.
+ */
+async function buyMany(c: Campaign, n: { orders: number; fromDay: number; toDay: number; rand: () => number; sizes: string[]; cities: string[]; maxQty?: number; fan?: User; failEvery?: number; unpaid?: number; returning?: { from: Buyer[]; share: number; seed: number } }) {
+  const refs: { orderId: string; ref: string; buyer: Buyer }[] = [];
+  const back = n.returning && prng(n.returning.seed);
   for (let i = 0; i < n.orders; i++) {
     const day = n.fromDay + ((n.toDay - n.fromDay) * i) / Math.max(1, n.orders);
     at(day, 2 + Math.floor(n.rand() * 12));
     const first = FIRST[Math.floor(n.rand() * FIRST.length)];
     const last = LAST[Math.floor(n.rand() * LAST.length)];
+    // One address per person, so a fan who backs two runs is recognisably the same fan.
+    let buyer: Buyer = { name: `${first} ${last}.`, email: `${first.toLowerCase()}.${last.toLowerCase()}@fan.example`, city: "" };
     const qty = n.maxQty && n.rand() < 0.25 ? 2 : 1;
+    const size = n.sizes[Math.floor(n.rand() * n.sizes.length)];
+    n.rand(); // kept so the draw sequence (and every seeded total) is unchanged
+    buyer.city = pickBy(first + last, n.cities);
+    if (back && n.returning!.from.length && back() < n.returning!.share) {
+      buyer = n.returning!.from[Math.floor(back() * n.returning!.from.length)];
+    }
     const { order, checkoutUrl } = await createOrder(
       {
         slug: c.slug,
-        size: n.sizes[Math.floor(n.rand() * n.sizes.length)],
+        size,
         quantity: qty,
-        buyerName: `${first} ${last}.`,
-        buyerEmail: `${first.toLowerCase()}.${last.toLowerCase()}${i}@fan.example`,
-        buyerCity: CITIES[Math.floor(n.rand() * CITIES.length)],
+        buyerName: buyer.name,
+        buyerEmail: buyer.email,
+        buyerCity: buyer.city,
         checkoutKey: `seed-${c.id}-${i}`,
       },
       undefined,
@@ -95,7 +128,7 @@ async function buyMany(c: Campaign, n: { orders: number; fromDay: number; toDay:
       continue;
     }
     await simulatorComplete(ref, "succeeded");
-    refs.push({ orderId: order.id, ref });
+    refs.push({ orderId: order.id, ref, buyer });
   }
   return refs;
 }
@@ -136,6 +169,8 @@ async function seedHistory() {
   const emblem = upload("cloud-post-emblem.svg", "Cloud Post Emblem", "Circular badge with a winged envelope. Keep the ring text intact.");
   const night = upload("night-route.svg", "Night Route", "Transparent artwork for dark garments: moon, dotted route, parcel.");
 
+  await seedPulse(haruka);
+
   const v1Rules: KitRules = {
     products: [{ productId: "tshirt", layouts: ["centre"], minPriceMinor: 49900, maxPriceMinor: 149900 }],
     territories: ["IN"],
@@ -175,7 +210,7 @@ async function seedHistory() {
   at(-55);
   reviewVersion({ versionId: latestVersion(first.id).id, actor: haruka, decision: "approved", comment: "Lovely use of the key visual. Approved." });
   publishVersion({ versionId: latestVersion(first.id).id, actor: riya });
-  const firstRefs = await buyMany(first, { orders: 83, fromDay: -54, toDay: -26, rand, sizes: ["S", "M", "M", "L", "L", "XL"], maxQty: 2 });
+  const firstRefs = await buyMany(first, { orders: 83, fromDay: -54, toDay: -26, rand, sizes: ["S", "M", "M", "L", "L", "XL"], cities: FIRST_FLIGHT_CITIES, maxQty: 2 });
   // Trim to exactly 100 delivered units + 3 refunded orders for a clean example.
   // (The PRNG is fixed, so this is deterministic.)
   at(-41);
@@ -195,6 +230,11 @@ async function seedHistory() {
   for (const [i, orderId] of refundTargets.entries()) {
     at(-40 + i, 3);
     await requestRefund({ orderId, actor: meera, reason: i === 0 ? "Fan asked to cancel before production" : "Duplicate purchase by the same fan" });
+  }
+  // Aarav was one of First Flight's backers: his order is one of the delivered ones.
+  {
+    const mine = paid.filter((o) => !refundTargets.includes(o.id) && o.quantity === 1)[4];
+    run("UPDATE orders SET fan_user_id = ?, buyer_name = ?, buyer_email = ?, buyer_city = 'Patiala' WHERE id = ?", aarav.id, aarav.name, aarav.email, mine.id);
   }
   at(-24);
   releaseProduction({ campaignId: first.id, actor: meera });
@@ -245,7 +285,7 @@ async function seedHistory() {
   at(-28);
   reviewVersion({ versionId: latestVersion(monsoon.id).id, actor: haruka, decision: "approved", comment: "Approved." });
   publishVersion({ versionId: latestVersion(monsoon.id).id, actor: kabir });
-  await buyMany(monsoon, { orders: 14, fromDay: -27, toDay: -4, rand, sizes: ["A3"], unpaid: 2 });
+  await buyMany(monsoon, { orders: 14, fromDay: -27, toDay: -4, rand, sizes: ["A3"], cities: MONSOON_CITIES, unpaid: 2 });
   at(-10, 5);
   {
     const { checkoutUrl } = await createOrder(
@@ -296,7 +336,9 @@ async function seedHistory() {
   at(-14);
   reviewVersion({ versionId: latestVersion(midnight.id).id, actor: haruka, decision: "approved", comment: "Thanks for the changes. Approved for India." });
   publishVersion({ versionId: latestVersion(midnight.id).id, actor: riya });
-  const midRefs = await buyMany(midnight, { orders: 41, fromDay: -13, toDay: -1, rand, sizes: ["S", "M", "L", "L", "XL"], maxQty: 2, failEvery: 13, unpaid: 1 });
+  const midRefs = await buyMany(midnight, { orders: 41, fromDay: -13, toDay: -1, rand, sizes: ["S", "M", "L", "L", "XL"], cities: MIDNIGHT_CITIES, maxQty: 2, failEvery: 13, unpaid: 1,
+    // Same creator, same clubs: a good share of Midnight's buyers backed First Flight.
+    returning: { from: firstRefs.filter((r) => !refundTargets.includes(r.orderId)).map((r) => r.buyer), share: 0.4, seed: 4141 } });
   at(-6);
   await simulatorResend(midRefs[5].ref);
   {
@@ -307,6 +349,42 @@ async function seedHistory() {
     );
     await simulatorComplete(checkoutUrl.split("/").pop()!, "succeeded");
   }
+  // Aarav answers the pulse (which follows the property for him) and follows Riya.
+  at(-3, 6);
+  recordInterest({ kitId: "kit_skycourier", email: aarav.email, city: "Patiala", ageBand: "18–24", priceMinor: 69900, wants: ["tshirt", "poster", "pin"], channel: "crunchyroll", language: "hi" }, aarav);
+  follow(aarav, "creator", riya.id);
+
+  // ---- Campaign F: Diwali poster, approved; today is its backers' day ------
+  at(-3, 2);
+  const lanterns = createCampaign({
+    kitId: "kit_skycourier",
+    title: "Festival of Lanterns Poster",
+    actor: riya,
+    content: content({
+      productId: "poster",
+      layoutId: "framed",
+      design: { artworkAssetId: night.id, artworkScale: 0.9, baseColour: "night", text: { line1: "Roshni ki chitthi", line2: "A DIWALI DELIVERY · A3 PRINT", font: "display", colour: "gold", position: "below" } },
+      copy: {
+        title: "Festival of Lanterns Poster",
+        tagline: "The courier’s night route, lit for Diwali.",
+        story: "Kumo Lantern’s night-route artwork meets the paper lanterns on every balcony in our colony. A framed A3 print to give before Diwali — an official Sky Courier collaboration with Kumo Lantern Studio.",
+        audience: "Club members and their families looking for a Diwali gift that isn’t another box of sweets; Instagram followers across Delhi NCR and Punjab.",
+        localAngle: "Japanese paper lanterns and Diwali diyas carry the same idea: a light left on for someone coming home.",
+      },
+      distribution: {
+        channels: [{ id: "instagram", plannedReach: 16000 }, { id: "whatsapp", plannedReach: 6000 }],
+        launchMoment: "Ten days before Diwali",
+        creatorCommitment: "A reel, a gifting post and a pinned message in every club group",
+      },
+      offer: { priceMinor: 44900, shippingMinor: 7900, thresholdUnits: 40, launchDate: dayIso(1), deadline: dayIso(18), territory: "IN", sizes: ["A3"], expectedUnits: 60 },
+    }),
+  });
+  submitVersion({ versionId: latestVersion(lanterns.id).id, actor: riya });
+  at(-3, 22);
+  reviewVersion({ versionId: latestVersion(lanterns.id).id, actor: haruka, decision: "approved", comment: "Beautiful pairing of the lanterns. Approved for India." });
+  at(-2, 1);
+  publishVersion({ versionId: latestVersion(lanterns.id).id, actor: riya });
+
   // Riya edits the live campaign: v3 needs fresh approval; fans still buy v2.
   at(-1, 3);
   const v2 = latestVersion(midnight.id);
@@ -382,4 +460,50 @@ export async function ensureSeeded(): Promise<void> {
 export async function resetDemo(): Promise<void> {
   wipeDatabase();
   await seedDemo();
+}
+
+// ---------------------------------------------------------------------------
+// The fan pulse: ~650 fans across India answered before (and during) the first
+// campaigns. Deterministic, and independent of the order history's randomness.
+// ---------------------------------------------------------------------------
+
+const PULSE_CITIES: [string, number][] = [
+  ["Delhi", 15], ["Mumbai", 12], ["Bengaluru", 12], ["Hyderabad", 8], ["Pune", 7], ["Kolkata", 7], ["Chennai", 6], ["Guwahati", 5],
+  ["Chandigarh", 4], ["Shillong", 3], ["Patiala", 3], ["Jaipur", 3], ["Lucknow", 3], ["Ahmedabad", 3], ["Kochi", 3], ["Indore", 2], ["Bhopal", 2], ["Bhubaneswar", 2],
+];
+const METROS = new Set(["Delhi", "Mumbai", "Bengaluru", "Hyderabad", "Pune", "Chennai", "Kolkata"]);
+
+function weighted<T>(rand: () => number, items: [T, number][]): T {
+  const total = items.reduce((s, [, w]) => s + w, 0);
+  let r = rand() * total;
+  for (const [item, w] of items) if ((r -= w) < 0) return item;
+  return items[items.length - 1][0];
+}
+
+async function seedPulse(owner: User) {
+  void owner;
+  const r = prng(72026);
+  const WANT_P: Record<string, number> = { tshirt: 0.72, poster: 0.41, hoodie: 0.38, glassware: 0.27, stickers: 0.46, pin: 0.31, tote: 0.22, figure: 0.19 };
+  for (let i = 0; i < 700; i++) {
+    // Most answers arrive in the fortnight before the first campaign; the rest trickle in.
+    const early = r() < 0.7;
+    at(early ? -76 + r() * 19 : -55 + r() * 52, 0);
+    const city = weighted(r, PULSE_CITIES.map(([c, w]) => [c, w] as [string, number]));
+    const age = weighted(r, [[AGE_BANDS[0], 14], [AGE_BANDS[1], 52], [AGE_BANDS[2], 27], [AGE_BANDS[3], 7]]);
+    let band = weighted(r, PRICE_BANDS.map((p, k) => [k, [5, 10, 19, 24, 18, 12, 8, 4][k]] as [number, number]));
+    if (METROS.has(city) && r() < 0.2) band = Math.min(PRICE_BANDS.length - 1, band + 1);
+    if ((age === AGE_BANDS[0] || age === AGE_BANDS[1]) && r() < 0.25) band = Math.max(0, band - 1);
+    const wants = WANTS.map((w) => w.id).filter((w) => r() < WANT_P[w]);
+    if (!wants.length) wants.push("tshirt");
+    const south = city === "Chennai" ? "ta" : city === "Hyderabad" ? "te" : null;
+    const language = south && r() < 0.35 ? south
+      : ["Guwahati", "Shillong", "Kolkata", "Bhubaneswar"].includes(city) && r() < 0.3 ? weighted(r, [["en", 2], ["other", 1]])
+      : weighted(r, LANGUAGES.map((l) => [l.id, { ja_en: 50, hi: 30, en: 12, ta: 3, te: 3, other: 2 }[l.id]] as [string, number]));
+    const channel = weighted(r, WATCH_CHANNELS.map((c) => [c.id, { crunchyroll: 28, netflix: 22, youtube: 16, reels: 17, discord: 9, friends: 8 }[c.id]] as [string, number]));
+    const first = FIRST[Math.floor(r() * FIRST.length)];
+    const last = LAST[Math.floor(r() * LAST.length)];
+    // Some pulse fans later buy under the same address; most are new to the shop.
+    const email = r() < 0.45 ? `${first.toLowerCase()}.${last.toLowerCase()}@fan.example` : `${first.toLowerCase()}.${last.toLowerCase()}.${i}@pulse.example`;
+    recordInterest({ kitId: "kit_skycourier", email, city, ageBand: age, priceMinor: PRICE_BANDS[band], wants, channel, language });
+  }
 }

@@ -1,0 +1,164 @@
+{
+ "users": [
+  {
+   "id": "u_admin",
+   "phone": "9999999999",
+   "name": "Meera Iyer",
+   "wallet": 0,
+   "isAdmin": true,
+   "createdAt": "2026-06-26T17:54:24.820Z",
+   "studioId": "usr_meera"
+  },
+  {
+   "id": "u_aarav",
+   "phone": "9876543210",
+   "name": "Aarav Gupta",
+   "wallet": 50,
+   "isAdmin": false,
+   "createdAt": "2026-09-14T17:54:24.821Z",
+   "studioId": "usr_aarav"
+  },
+  {
+   "id": "u_riya",
+   "phone": "9123456780",
+   "name": "Riya Menon",
+   "wallet": 0,
+   "isAdmin": false,
+   "createdAt": "2026-04-07T17:54:24.821Z",
+   "studioId": "usr_riya"
+  }
+ ],
+ "unlocks": [],
+ "progress": [],
+ "cart": [],
+ "orders": [],
+ "tags": [
+  {
+   "code": "T1-GENUINE1-2JFXZC9E",
+   "kind": "figure",
+   "refId": "f_satoru-gojo-pop-up-parade",
+   "title": "Satoru Gojo — Pop Up Parade",
+   "editionNo": null,
+   "ownerId": null,
+   "registeredAt": null,
+   "registeredCity": null
+  },
+  {
+   "code": "T1-GENUINE2-83SMHLXT",
+   "kind": "volume",
+   "refId": "v_jujutsu-kaisen_1",
+   "title": "Jujutsu Kaisen Vol. 1",
+   "editionNo": null,
+   "ownerId": null,
+   "registeredAt": null,
+   "registeredCity": null
+  },
+  {
+   "code": "T1-CLAIMED1-EBFEJQK8",
+   "kind": "figure",
+   "refId": "f_monkey-d-luffy-gear-5",
+   "title": "Monkey D. Luffy — Gear 5",
+   "editionNo": null,
+   "ownerId": "u_riya",
+   "registeredAt": "2026-03-12T05:50:00.000Z",
+   "registeredCity": "Lucknow"
+  }
+ ],
+ "ownership": [
+  {
+   "userId": "u_riya",
+   "kind": "figure",
+   "refId": "f_monkey-d-luffy-gear-5",
+   "source": "verify",
+   "createdAt": "2026-03-18T17:54:24.833Z"
+  }
+ ],
+ "settings": {
+  "readingMode": "free"
+ },
+ "events": [],
+ "chapterOverrides": {},
+ "stock": {},
+ "editionSold": {},
+ "partners": [
+  {
+   "id": "org_kumo",
+   "publisherId": "kumo-lantern",
+   "name": "Kumo Lantern Studio",
+   "nameJa": "雲灯スタジオ",
+   "country": "Japan",
+   "website": "https://kumolantern.example",
+   "contactName": "Haruka Sato",
+   "email": "rights@kumo-lantern.example",
+   "verified": true,
+   "agreementVersion": "2026-10",
+   "agreementAcceptedAt": "2026-06-06T17:54:24.833Z",
+   "createdAt": "2026-06-06T17:54:24.833Z"
+  },
+  {
+   "id": "org_shueisha",
+   "publisherId": "shueisha",
+   "name": "Shueisha",
+   "nameJa": "集英社",
+   "country": "Japan",
+   "website": "https://www.shueisha.co.jp",
+   "contactName": "Yuki Tanaka",
+   "email": "rights@shueisha.example",
+   "verified": true,
+   "agreementVersion": "2026-10",
+   "agreementAcceptedAt": "2026-07-06T17:54:24.833Z",
+   "createdAt": "2026-07-06T17:54:24.833Z"
+  },
+  {
+   "id": "org_kodansha",
+   "publisherId": "kodansha",
+   "name": "Kodansha",
+   "nameJa": "講談社",
+   "country": "Japan",
+   "website": "https://www.kodansha.co.jp",
+   "contactName": "Kenji Mori",
+   "email": "rights@kodansha.example",
+   "verified": true,
+   "agreementVersion": "2026-10",
+   "agreementAcceptedAt": "2026-07-21T17:54:24.833Z",
+   "createdAt": "2026-07-21T17:54:24.833Z"
+  }
+ ],
+ "partnerUsers": [
+  {
+   "id": "pu_kumo",
+   "orgId": "org_kumo",
+   "email": "partner@kumolantern.example",
+   "name": "Haruka Sato",
+   "role": "owner",
+   "passwordHash": "scrypt$5eedkum0lan7e001$954e6716d5f437ef14fae0af7660ec52e262e498673a0ca3f9424c2d1641899f",
+   "createdAt": "2026-06-06T17:54:24.855Z",
+   "lastLoginAt": null,
+   "studioIds": [
+    "usr_haruka",
+    "usr_daichi"
+   ]
+  },
+  {
+   "id": "pu_shueisha",
+   "orgId": "org_shueisha",
+   "email": "partner@shueisha.example",
+   "name": "Yuki Tanaka",
+   "role": "owner",
+   "passwordHash": "scrypt$5eed5hue15ha0001$7c727f213c0d2498f0e9de8da93be3114ea9518d9e52e671538e8b46527a2372",
+   "createdAt": "2026-07-06T17:54:24.875Z",
+   "lastLoginAt": null
+  },
+  {
+   "id": "pu_kodansha",
+   "orgId": "org_kodansha",
+   "email": "partner@kodansha.example",
+   "name": "Kenji Mori",
+   "role": "owner",
+   "passwordHash": "scrypt$5eedk0dan5ha0001$c4726a1f577ec41f4f0cd8489537f9a206c34fc542cba16036370c3fbe427061",
+   "createdAt": "2026-07-21T17:54:24.894Z",
+   "lastLoginAt": null
+  }
+ ],
+ "submissions": []
+}

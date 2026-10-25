@@ -13,6 +13,12 @@ export const TARGETS = {
   roundsToApproval: 2,
   campaignsPerKit: 3,
   gateHitRate: 0.5,
+  /** Pulse answers collected before the first campaign launches. */
+  signalsBeforeLaunch: 200,
+  /** Share of backers who back a second run during the pilot. */
+  repeatBackerRate: 0.1,
+  /** Share of shipped units that carry an authenticity tag. */
+  taggedShare: 1,
 };
 
 export interface Decision {
@@ -70,6 +76,9 @@ export interface Proof {
     allReconciled: boolean;
   };
   integrity: { duplicatesIgnored: number; chargedTwice: number; refundedTwice: number; ordersOnUnapprovedVersions: number; rejectedSignatures: number };
+  discover: { signals: number; beforeFirstLaunch: number; converted: number; conversionRate: number; cities: number };
+  retain: { backers: number; repeatBackers: number; repeatRate: number | null; followers: number; backersDayOrders: number };
+  authentic: { shippedUnits: number; tagged: number; taggedShare: number | null; scans: number; unknownCodeScans: number };
 }
 
 const hoursBetween = (a: string, b: string) => (new Date(b).getTime() - new Date(a).getTime()) / 3_600_000;
@@ -215,8 +224,42 @@ export function buildProof(): Proof {
   const n = (sql: string) => get<{ n: number }>(sql)?.n ?? 0;
   const orderVersions = all<{ v: string }>("SELECT DISTINCT campaign_version_id AS v FROM orders");
 
+  // ---- Discovery, retention, authenticity ---------------------------------
+  const firstLaunch = get<{ t: string | null }>("SELECT MIN(published_at) AS t FROM campaigns")?.t ?? null;
+  const signals = n("SELECT COUNT(*) AS n FROM interest_signals");
+  const converted = n(
+    "SELECT COUNT(*) AS n FROM interest_signals s WHERE EXISTS (SELECT 1 FROM orders o JOIN campaigns c ON c.id = o.campaign_id WHERE c.kit_id = s.kit_id AND o.buyer_email = s.email AND o.paid_at IS NOT NULL)",
+  );
+  const backerCounts = all<{ n: number }>("SELECT COUNT(DISTINCT campaign_id) AS n FROM orders WHERE paid_at IS NOT NULL GROUP BY buyer_email");
+  const repeatBackers = backerCounts.filter((r) => r.n > 1).length;
+  const shippedUnits = n("SELECT COALESCE(SUM(quantity), 0) AS n FROM orders WHERE shipped_at IS NOT NULL");
+  const tagged = n("SELECT COUNT(*) AS n FROM authenticity_codes");
+
   return {
     generatedAt: now,
+    discover: {
+      signals,
+      beforeFirstLaunch: firstLaunch ? get<{ n: number }>("SELECT COUNT(*) AS n FROM interest_signals WHERE created_at < ?", firstLaunch)!.n : signals,
+      converted,
+      conversionRate: signals ? converted / signals : 0,
+      cities: n("SELECT COUNT(DISTINCT city) AS n FROM interest_signals"),
+    },
+    retain: {
+      backers: backerCounts.length,
+      repeatBackers,
+      repeatRate: backerCounts.length ? repeatBackers / backerCounts.length : null,
+      followers: n("SELECT COUNT(DISTINCT user_id) AS n FROM follows"),
+      backersDayOrders: n(
+        "SELECT COUNT(*) AS n FROM orders o JOIN campaign_versions v ON v.id = o.campaign_version_id WHERE o.paid_at IS NOT NULL AND substr(o.created_at, 1, 10) < json_extract(v.content_json, '$.offer.launchDate')",
+      ),
+    },
+    authentic: {
+      shippedUnits,
+      tagged,
+      taggedShare: shippedUnits ? tagged / shippedUnits : null,
+      scans: n("SELECT COUNT(*) AS n FROM authenticity_scans"),
+      unknownCodeScans: n("SELECT COUNT(*) AS n FROM authenticity_scans WHERE found = 0"),
+    },
     operate: {
       decisions,
       medianDecisionHours: median(decisions.map((d) => d.hours)),

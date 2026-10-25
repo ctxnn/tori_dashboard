@@ -9,6 +9,8 @@ type Param = string | number | bigint | null | Uint8Array;
 interface DbState {
   db: DatabaseSync;
   depth: number;
+  /** The schema text applied to this connection, so a dev reload can add new tables. */
+  schema: string;
 }
 
 const g = globalThis as unknown as { __torii?: DbState };
@@ -27,11 +29,16 @@ function open(): DbState {
   db.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 5000;");
   db.exec(SCHEMA);
   db.prepare("INSERT OR IGNORE INTO meta (key, value) VALUES ('schema_version', ?)").run(String(SCHEMA_VERSION));
-  return { db, depth: 0 };
+  return { db, depth: 0, schema: SCHEMA };
 }
 
 function state(): DbState {
   if (!g.__torii) g.__torii = open();
+  // The connection outlives hot reloads in dev; apply schema additions (all IF NOT EXISTS) when the code changes.
+  if (g.__torii.schema !== SCHEMA) {
+    g.__torii.db.exec(SCHEMA);
+    g.__torii.schema = SCHEMA;
+  }
   return g.__torii;
 }
 
@@ -91,6 +98,8 @@ export function wipeDatabase(): void {
   s.db.exec("COMMIT");
   s.db.exec("PRAGMA foreign_keys = ON");
   for (const f of fs.readdirSync(uploadsDir())) fs.rmSync(path.join(uploadsDir(), f), { force: true });
+  // Pages and covers uploaded through the Partner Portal.
+  fs.rmSync(path.join(dataDir(), "store-uploads"), { recursive: true, force: true });
 }
 
 /** Test helper: drop the cached connection so a fresh data dir can be used. */

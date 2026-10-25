@@ -381,14 +381,14 @@ describe("Proof metrics", () => {
   test("are computed from recorded events and match the seeded history", async () => {
     const { buildProof } = await import("../src/lib/domain/proof");
     const p = buildProof();
-    // Seeded decisions: First Flight, Monsoon, Midnight v1 (changes), Midnight v2.
-    expect(p.operate.decisions).toHaveLength(4);
+    // Seeded decisions: First Flight, Monsoon, Midnight v1 (changes), Midnight v2, Lanterns.
+    expect(p.operate.decisions).toHaveLength(5);
     expect(p.operate.decisions.find((d) => d.decision === "changes_requested")!.hours).toBeCloseTo(48, 0);
     expect(p.operate.medianDecisionHours).toBeCloseTo(24, 0);
     expect(p.operate.rounds.find((r) => r.title === "Midnight Delivery Tee")!.rounds).toBe(2);
     expect(p.operate.blockedByRules.length).toBeGreaterThanOrEqual(1);
     expect(p.operate.reviewedWithFailingRules).toBe(0);
-    expect(p.reuse.campaignsPerKit).toBe(5);
+    expect(p.reuse.campaignsPerKit).toBe(6);
     const first = p.demand.gates.find((g) => g.title === "First Flight Tee")!;
     expect(first.reached).toBe(true);
     const monsoon = p.demand.gates.find((g) => g.title === "Monsoon Route Poster")!;
@@ -396,5 +396,108 @@ describe("Proof metrics", () => {
     expect(p.integrity).toMatchObject({ chargedTwice: 0, refundedTwice: 0, ordersOnUnapprovedVersions: 0 });
     expect(p.money.allReconciled).toBe(true);
     expect(p.money.totals.licensor).toBe(699000);
+    expect(p.discover.beforeFirstLaunch).toBeGreaterThanOrEqual(200);
+    expect(p.retain.repeatRate!).toBeGreaterThanOrEqual(0.1);
+    expect(p.authentic.taggedShare).toBe(1);
+  });
+});
+
+describe("Audience discovery", () => {
+  test("pulse answers are validated, deduplicated per email and aggregated", async () => {
+    const { recordInterest, audienceInsights } = await import("../src/lib/domain/audience");
+    const before = audienceInsights("kit_skycourier").total;
+    const answer = { kitId: "kit_skycourier", email: "New.Fan@Example.com", city: "Shillong", ageBand: "18–24", priceMinor: 49900, wants: ["stickers"], channel: "youtube", language: "en" };
+    expect(recordInterest(answer).isNew).toBe(true);
+    expect(recordInterest({ ...answer, email: "new.fan@example.com", priceMinor: 59900 }).isNew).toBe(false);
+    expect(audienceInsights("kit_skycourier").total).toBe(before + 1);
+    expect(() => recordInterest({ ...answer, email: "x@example.com", priceMinor: 12345 })).toThrow(HttpError);
+    expect(() => recordInterest({ ...answer, email: "y@example.com", wants: [] })).toThrow(/at least one/);
+    const a = audienceInsights("kit_skycourier");
+    expect(a.findings.some((f) => f.title.includes("Northeast"))).toBe(true);
+    // Products fans ask for that the kit doesn't permit are flagged.
+    expect(a.wants.find((w) => w.id === "glassware")!.inKit).toBe(false);
+    expect(a.wants.find((w) => w.id === "tshirt")!.inKit).toBe(true);
+  });
+
+  test("insights are only for the owner's org, creators and operators", async () => {
+    const { canViewAudience } = await import("../src/lib/domain/audience");
+    const { getKit } = await import("../src/lib/domain/kits");
+    const kit = getKit("kit_skycourier")!;
+    const u = U();
+    expect(canViewAudience(u.haruka, kit)).toBe(true);
+    expect(canViewAudience(u.riya, kit)).toBe(true);
+    expect(canViewAudience(u.aarav, kit)).toBe(false);
+    expect(canViewAudience({ ...u.haruka, org: "Another Studio" }, kit)).toBe(false);
+  });
+});
+
+describe("Community", () => {
+  test("backers' day: only past backers can preorder before launch", async () => {
+    const { aarav } = U();
+    const c = campaign("festival-of-lanterns-poster");
+    const order = (fan?: typeof aarav, key = `bd-${Math.random()}`) =>
+      createOrder({ slug: c.slug, size: "A3", quantity: 1, buyerName: "Someone", buyerEmail: "someone@fan.example", checkoutKey: key }, fan);
+    await expect(order()).rejects.toThrow(/Backers’ day/);
+    const { order: o } = await order(aarav);
+    expect(o.status).toBe("pending_payment");
+    const audit = get<{ detail_json: string }>("SELECT detail_json FROM audit_log WHERE action = 'order.created' AND entity_id = ?", o.id)!;
+    expect(JSON.parse(audit.detail_json).earlyAccess).toBe(true);
+  });
+
+  test("follows are fan-only and idempotent", async () => {
+    const { follow, unfollow, followsFor } = await import("../src/lib/domain/community");
+    const { aarav, riya } = U();
+    const before = followsFor(aarav.id).length;
+    follow(aarav, "creator", U().kabir.id);
+    follow(aarav, "creator", U().kabir.id);
+    expect(followsFor(aarav.id).length).toBe(before + 1);
+    unfollow(aarav, "creator", U().kabir.id);
+    expect(followsFor(aarav.id).length).toBe(before);
+    expect(() => follow(riya, "kit", "kit_skycourier")).toThrow(/Only fans/);
+    expect(() => follow(aarav, "creator", U().meera.id)).toThrow(HttpError);
+  });
+
+  test("the passport shows delivered items with their tags and drops from follows", async () => {
+    const { passportFor } = await import("../src/lib/domain/community");
+    const p = passportFor(U().aarav);
+    const delivered = p.stamps.find((s) => s.status === "delivered")!;
+    expect(delivered.title).toBe("First Flight Tee");
+    expect(delivered.codes).toHaveLength(1);
+    const drop = p.drops.find((d) => d.slug === "festival-of-lanterns-poster")!;
+    expect(drop.phase.phase).toBe("backers");
+    expect(drop.earlyAccess).toBe(true);
+  });
+});
+
+describe("Authenticity", () => {
+  test("every shipped unit gets exactly one code, issued once", async () => {
+    const { meera } = U();
+    const c = campaign("midnight-delivery-tee");
+    await buy(c.slug, 5);
+    releaseProduction({ campaignId: c.id, actor: meera });
+    markShipped({ campaignId: c.id, actor: meera });
+    const units = get<{ n: number }>("SELECT SUM(quantity) AS n FROM orders WHERE campaign_id = ? AND status = 'shipped'", c.id)!.n;
+    const codes = () => get<{ n: number; max: number }>("SELECT COUNT(*) AS n, MAX(serial_no) AS max FROM authenticity_codes WHERE campaign_id = ?", c.id)!;
+    expect(codes()).toEqual({ n: units, max: units });
+    markShipped({ campaignId: c.id, actor: meera });
+    expect(codes().n).toBe(units);
+  });
+
+  test("codes verify against the approved version; unknown codes are logged", async () => {
+    const { verifyCode, recordScan, sampleCode } = await import("../src/lib/domain/authenticity");
+    const code = sampleCode()!;
+    const v = verifyCode(code.toLowerCase().replace(/-/g, " "));
+    expect(v.found).toBe(true);
+    if (v.found) {
+      expect(v.title).toBe("First Flight Tee");
+      expect(v.approved && v.hashMatches).toBe(true);
+      expect(v.approvedBy).toBe("Haruka Sato");
+      expect(v.serialNo).toBeGreaterThanOrEqual(1);
+      expect(v.runSize).toBe(100);
+    }
+    expect(recordScan(code)).toEqual({ found: true, scans: 1 });
+    expect(recordScan(code).scans).toBe(2);
+    expect(verifyCode("SC-FAKE-CODE").found).toBe(false);
+    expect(recordScan("SC-FAKE-CODE").found).toBe(false);
   });
 });

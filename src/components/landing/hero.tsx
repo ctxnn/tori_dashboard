@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { Arrow, ProgressBar, Seal } from "@/components/ui";
 import { Preview } from "@/components/preview";
+import { Sakura } from "@/components/sakura";
 
 interface Props {
   proof: { slug: string; title: string; svg: string; price: string; versionNo: number; hash: string; paid: number; threshold: number } | null;
@@ -31,7 +32,9 @@ function Torii() {
 export function Hero({ proof, ticker }: Props) {
   return (
     <section data-dark-band className="bleed grain relative -mt-10 overflow-hidden bg-ink text-paper sm:-mt-12" aria-label="Introduction">
-      <div className="grid-paper-dark absolute inset-0 opacity-60" aria-hidden />
+      <div className="grid-paper-dark absolute inset-0 opacity-40" aria-hidden />
+      <div className="seigaiha-ink absolute inset-x-0 bottom-0 h-56 [mask-image:linear-gradient(to_top,black_30%,transparent)]" aria-hidden />
+      <Sakura count={16} />
       <div className="relative mx-auto grid min-h-[calc(100dvh-5.2rem)] max-w-7xl items-center gap-6 px-4 pb-24 pt-14 sm:px-6 lg:grid-cols-[1.15fr_0.85fr] lg:pb-20 lg:pt-10">
         <div className="relative z-10">
           <div className="label flex items-center gap-2 text-paper/55">
@@ -71,6 +74,24 @@ export function Hero({ proof, ticker }: Props) {
                   </radialGradient>
                 </defs>
                 <circle cx="300" cy="268" r="236" fill="url(#sun)" style={{ animation: "sunrise 1.4s 0.2s cubic-bezier(0.2,0.7,0.2,1) both", transformOrigin: "300px 268px" }} />
+                {/* golden mist across the sun */}
+                <g fill="#d4a13a" opacity="0.55">
+                  {[
+                    [70, 170, 210],
+                    [330, 236, 240],
+                    [40, 318, 180],
+                  ].map(([x, y, w], k) => (
+                    <g key={k} style={{ animation: `mist ${10 + k * 3}s ${k}s ease-in-out infinite alternate` }}>
+                      <rect x={x} y={y} width={w} height="14" rx="7" />
+                      <rect x={x + w * 0.2} y={y - 8} width={w * 0.45} height="11" rx="5.5" />
+                    </g>
+                  ))}
+                </g>
+                {/* Fuji and a lesser peak on the horizon, either side of the gate */}
+                <path d="M-80 560 C-20 520 20 470 50 420 C60 404 68 392 76 386 Q92 374 108 386 C118 394 128 408 140 424 C180 480 230 530 300 560 Z" fill="#17201c" />
+                <path d="M50 420 C60 404 68 392 76 386 Q92 374 108 386 C118 394 128 408 140 424 L128 430 L118 416 L106 434 L94 418 L82 436 L70 420 L60 432 Z" fill="#f5f4ef" opacity="0.9" />
+                <path d="M330 560 C400 540 450 500 490 462 C502 450 512 442 522 440 Q534 438 546 448 C566 466 600 500 680 560 Z" fill="#141b18" />
+                <path d="M490 462 C502 450 512 442 522 440 Q534 438 546 448 C552 454 558 460 564 466 L552 470 L542 460 L530 472 L518 462 L506 474 L496 466 Z" fill="#f5f4ef" opacity="0.75" />
                 <Torii />
                 <path d="M0 559.5 H600" className="stroke-paper/25" />
               </svg>
